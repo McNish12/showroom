@@ -4,48 +4,129 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rocket Catalog</title>
+
+  <!-- Honors font for bold headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
-    :root { --pad:16px; --radius:14px; --muted:#6b7280; --bg:#f7f7f9; }
+    /* ==== Honors tokens ==== */
+    :root{
+      --brand:#f4a300;        /* Honors gold */
+      --brand-dark:#cc8700;   /* hover */
+      --text:#212121;
+      --muted:#6b7280;
+      --bg:#ffffff;
+      --pad:16px;
+      --radius:14px;
+      --wrap:1200px;
+    }
+
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;background:var(--bg);color:#111}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;z-index:2}
-    .wrap{max-width:1200px;margin:0 auto;padding:14px var(--pad)}
-    .title{font-weight:700;font-size:20px}
-    .controls{display:grid;gap:10px;grid-template-columns:1fr 180px 180px 180px}
-    .controls input,.controls select{padding:10px 12px;border:1px solid #ddd;border-radius:10px}
-    main .wrap{padding:18px var(--pad)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif}
+
+    /* Top utility bar */
+    .topbar{background:#111;color:#fff;font-size:13px}
+    .topbar .wrap{max-width:var(--wrap);margin:0 auto;padding:6px var(--pad);display:flex;gap:18px;justify-content:flex-end}
+    .topbar a{color:#fff;text-decoration:none;opacity:.9}
+    .topbar a:hover{opacity:1;text-decoration:underline}
+
+    /* Header with logo + nav */
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;z-index:10}
+    .nav{max-width:var(--wrap);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:24px}
+    .brand img{height:40px;width:auto;display:block}
+    .navlinks{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+    .navlinks a{font-family:Montserrat,system-ui;font-weight:700;text-transform:uppercase;font-size:14px;color:#111;text-decoration:none;padding:6px 8px;border-radius:8px}
+    .navlinks a:hover{color:var(--brand)}
+
+    /* Controls row under header */
+    .controls{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad) 14px;display:grid;gap:10px;grid-template-columns:1fr 180px 200px 200px}
+    .controls input,.controls select{padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px}
+
+    /* Hero (static banner instead of Smart Slider) */
+    .hero{background:url('HERO_URL') center/cover no-repeat;color:#fff;text-align:center}
+    .hero .shade{background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.35));}
+    .hero .inner{max-width:var(--wrap);margin:0 auto;padding:80px var(--pad)}
+    .hero h1{font-family:Montserrat,system-ui;font-weight:700;text-transform:uppercase;font-size:40px;margin:0 0 6px}
+    .hero p{margin:0;opacity:.9}
+
+    /* Main content */
+    main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
     .muted{color:var(--muted);font-size:12px}
+
+    /* Cards */
     .cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-    .card{background:#fff;border:1px solid #eee;border-radius:var(--radius);box-shadow:0 1px 2px rgba(0,0,0,.05);display:flex;flex-direction:column;overflow:hidden}
+    .card{background:#fff;border:1px solid #eee;border-radius:var(--radius);box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden}
     .thumb{aspect-ratio:4/3;background:#fafafa;display:flex;align-items:center;justify-content:center}
     .thumb img{width:100%;height:100%;object-fit:cover}
     .meta{padding:12px 14px;display:grid;gap:8px}
-    .name{font-weight:600}
+    .name{font-family:Montserrat,system-ui;font-weight:700}
     .sub{color:#555;font-size:13px}
-    .chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#f1f1f5;font-size:12px;margin-right:6px}
-    .price{font-weight:700}
+    .price{font-family:Montserrat,system-ui;font-weight:700}
+    .chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#fff3d6;border:1px solid rgba(244,163,0,.35);color:#7a5200;font-size:12px;margin-right:6px}
     .sizes{border-top:1px dashed #eee;padding:10px 14px;font-size:13px;line-height:1.6;color:#333}
-    .sizes dt{font-weight:600}
-    .sizes dd{margin:0 0 6px 0}
+    .sizes dt{font-family:Montserrat,system-ui;font-weight:700}
     .actions{display:flex;gap:8px;padding:12px 14px 14px}
-    .btn{border:1px solid #ddd;background:#fff;border-radius:10px;padding:8px 10px;font-size:14px;text-decoration:none;color:#111}
-    .btn.primary{background:#0b57d0;border-color:#0b57d0;color:#fff}
-    @media (max-width:800px){.controls{grid-template-columns:1fr}}
+    .btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;padding:8px 10px;font-size:14px;text-decoration:none;cursor:pointer}
+    .btn:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+
+    /* Footer */
+    footer{border-top:1px solid #eee;background:#fff}
+    footer .wrap{max-width:var(--wrap);margin:0 auto;padding:20px var(--pad);display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    footer img{height:50px;width:auto}
+
+    @media (max-width:800px){
+      .controls{grid-template-columns:1fr}
+      .navlinks{display:none}
+      .hero .inner{padding:56px var(--pad)}
+      .hero h1{font-size:30px}
+    }
   </style>
 </head>
 <body>
+
+  <!-- Top utility bar -->
+  <div class="topbar">
+    <div class="wrap">
+      <span>Email: <a href="mailto:sales@honorsone.com">sales@honorsone.com</a></span>
+      <span>•</span>
+      <a href="tel:+12485825200">248.582.5200</a>
+    </div>
+  </div>
+
+  <!-- Header + nav -->
   <header>
-    <div class="wrap" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div class="title">Rocket Catalog</div>
-      <div class="controls" style="flex:1 1 600px">
-        <input id="q" placeholder="Search products, tags, vendor…" />
-        <select id="cat"><option value="">All Categories</option></select>
-        <select id="imp"><option value="">All Imprint Methods</option></select>
-        <select id="tag"><option value="">All Tags</option></select>
-      </div>
+    <div class="nav">
+      <a class="brand" href="https://www.honorsone.com/" target="_blank" rel="noopener">
+        <img src="LOGO_URL" alt="Honors">
+      </a>
+      <nav class="navlinks">
+        <a href="https://www.honorsone.com/awards/" target="_blank" rel="noopener">Awards</a>
+        <a href="https://www.honorsone.com/promotional-products/" target="_blank" rel="noopener">Promotional Products</a>
+        <a href="https://www.honorsone.com/apparel/" target="_blank" rel="noopener">Apparel</a>
+        <a href="https://www.honorsone.com/contact/" target="_blank" rel="noopener">Contact</a>
+      </nav>
+    </div>
+
+    <!-- Search + filters -->
+    <div class="controls">
+      <input id="q" placeholder="Search products, tags, vendor…" />
+      <select id="cat"><option value="">All Categories</option></select>
+      <select id="imp"><option value="">All Imprint Methods</option></select>
+      <select id="tag"><option value="">All Tags</option></select>
     </div>
   </header>
 
+  <!-- Hero banner -->
+  <section class="hero">
+    <div class="shade">
+      <div class="inner">
+        <h1>Rocket Approved Awards</h1>
+        <p>Live catalog • Pulled from Google Sheets</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog -->
   <main>
     <div class="wrap">
       <div id="count" class="muted" style="padding:4px 2px 12px"></div>
@@ -53,55 +134,80 @@
     </div>
   </main>
 
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <img src="LOGO_URL" alt="Honors">
+      <div>
+        997 Rochester Road, Suite A • Troy, Michigan 48083<br>
+        <a href="mailto:sales@honorsone.com">sales@honorsone.com</a> • 248.582.5200
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== Catalog JS: same logic, just wrapped in this file ===== -->
   <script>
-    /* Your published-to-web CSV URLs for the Products and Variants tabs */
+    // Published-to-web CSVs for Products & Variants
     const PRODUCTS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyKnlMtRQJKbmCkI7loITX-K8M-iF8jUfSwSQOw8wIio1eZLFKq_WsAfArkfG4eaGKQkuV3imHocOv/pub?gid=653601520&single=true&output=csv";
     const VARIANTS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyKnlMtRQJKbmCkI7loITX-K8M-iF8jUfSwSQOw8wIio1eZLFKq_WsAfArkfG4eaGKQkuV3imHocOv/pub?gid=140795318&single=true&output=csv";
 
     async function fetchCSV(url){ const res=await fetch(url,{cache:'no-store'}); const text=await res.text(); return parseCSV(text); }
-    function parseCSV(text){ const rows=[]; let row=[], cur="", q=false; for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1]; if(q){ if(c==='\"'&&n==='\"'){cur+='\"';i++;} else if(c==='\"'){q=false;} else cur+=c;} else { if(c==='\"')q=true; else if(c===','){row.push(cur);cur="";} else if(c==='\n'||c==='\r'){ if(cur!==""||row.length){row.push(cur);rows.push(row);row=[];cur="";} } else cur+=c;}} if(cur!==""||row.length){row.push(cur);rows.push(row);} const headers=rows.shift().map(h=>h.trim()); return rows.filter(r=>r.length).map(r=>{const o={}; headers.forEach((h,i)=>o[h]=r[i]??""); return o;}); }
-    function toNum(x){ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; }
-    function uniq(a){ return [...new Set(a)]; }
-    const norm = s => (s||'').toString().toLowerCase();
+    function parseCSV(text){
+      const rows=[]; let row=[], cur="", q=false;
+      for(let i=0;i<text.length;i++){
+        const c=text[i],n=text[i+1];
+        if(q){ if(c==='\"'&&n==='\"'){cur+='\"';i++;} else if(c==='\"'){q=false;} else cur+=c; }
+        else { if(c==='\"') q=true; else if(c===','){row.push(cur);cur="";}
+        else if(c==='\n'||c==='\r'){ if(cur!==""||row.length){row.push(cur);rows.push(row);row=[];cur="";} }
+        else cur+=c; }
+      }
+      if(cur!==""||row.length){row.push(cur);rows.push(row);}
+      const headers=rows.shift().map(h=>h.trim());
+      return rows.filter(r=>r.length).map(r=>{const o={}; headers.forEach((h,i)=>o[h]=r[i]??""); return o;});
+    }
+    const norm=s=>(s||'').toString().toLowerCase();
+    const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
+    const uniq=a=>[...new Set(a)];
 
     async function main(){
       const [products, variants] = await Promise.all([fetchCSV(PRODUCTS_CSV), fetchCSV(VARIANTS_CSV)]);
-      const byProduct = variants.reduce((m,v)=>{const key=(v['Product Name']||'').trim(); if(!key) return m; (m[key]=m[key]||[]).push(v); return m;}, {});
+      const byProduct = variants.reduce((m,v)=>{const k=(v['Product Name']||'').trim(); if(!k) return m; (m[k]=m[k]||[]).push(v); return m;}, {});
       const catalog = products
         .filter(p => norm(p.Status)==='approved')
-        .map(p => {
-          const name = p['Product Name']||'';
-          const vs = (byProduct[name]||[]).slice();
-          const nums = vs.map(v=>toNum(v.Price)).filter(n=>n!=null);
-          const minPrice = nums.length? Math.min(...nums): null;
-          const maxPrice = nums.length? Math.max(...nums): null;
-          vs.sort((a,b)=>{const na=toNum(a.Price), nb=toNum(b.Price); if(na!=null&&nb!=null) return na-nb; if(na!=null) return -1; if(nb!=null) return 1; return (a.Size||'').localeCompare(b.Size||'');});
+        .map(p=>{
+          const name=p['Product Name']||'';
+          const vs=(byProduct[name]||[]).slice();
+          const nums=vs.map(v=>toNum(v.Price)).filter(n=>n!=null);
+          const minPrice=nums.length?Math.min(...nums):null;
+          const maxPrice=nums.length?Math.max(...nums):null;
+          vs.sort((a,b)=>{const na=toNum(a.Price),nb=toNum(b.Price); if(na!=null&&nb!=null) return na-nb; if(na!=null) return -1; if(nb!=null) return 1; return (a.Size||'').localeCompare(b.Size||'');});
           return {
             name,
-            category: p.Category||'',
-            vendor: p.Vendor||'',
-            vendorSku: p['Vendor SKU']||'',
-            preview: p['Preview Link']||'',
-            thumb: p['Thumbnail URL']||'',
-            setup: p['Setup Charge (USD)']||'',
-            repeat: p['Repeat Setup (USD)']||'',
-            setupNotes: p['Setup Notes']||'',
-            imprint: p['Imprint Method']||'',
-            lead: p['Lead Time (days)']||'',
-            minQty: p['Min Qty']||'',
-            tags: p.Tags||'',
-            variants: vs,
-            minPrice, maxPrice
+            category:p.Category||'',
+            vendor:p.Vendor||'',
+            vendorSku:p['Vendor SKU']||'',
+            preview:p['Preview Link']||'',
+            thumb:p['Thumbnail URL']||'',
+            setup:p['Setup Charge (USD)']||'',
+            repeat:p['Repeat Setup (USD)']||'',
+            setupNotes:p['Setup Notes']||'',
+            imprint:p['Imprint Method']||'',
+            lead:p['Lead Time (days)']||'',
+            minQty:p['Min Qty']||'',
+            tags:p.Tags||'',
+            variants:vs,
+            minPrice,maxPrice
           };
         });
 
-      const facets = {
+      // Facets
+      const facets={
         categories: uniq(catalog.map(c=>c.category).filter(Boolean)).sort(),
-        imprints: uniq(catalog.map(c=>c.imprint).filter(Boolean)).sort(),
-        tags: uniq(catalog.flatMap(c => (c.tags? c.tags.split(',').map(s=>s.trim()).filter(Boolean):[]))).sort()
+        imprints:   uniq(catalog.map(c=>c.imprint).filter(Boolean)).sort(),
+        tags:       uniq(catalog.flatMap(c=> (c.tags? c.tags.split(',').map(s=>s.trim()).filter(Boolean):[]) )).sort()
       };
 
-      // populate dropdowns
+      // Populate controls
       const catEl=document.getElementById('cat'), impEl=document.getElementById('imp'), tagEl=document.getElementById('tag');
       facets.categories.forEach(v=>catEl.append(new Option(v,v)));
       facets.imprints.forEach(v=>impEl.append(new Option(v,v)));
@@ -123,21 +229,24 @@
 
       function card(p){
         const wrap=document.createElement('div'); wrap.className='card';
-        const t=document.createElement('div'); t.className='thumb'; const img=document.createElement('img'); img.alt=p.name; img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image'; t.appendChild(img);
+        const t=document.createElement('div'); t.className='thumb';
+        const img=document.createElement('img'); img.alt=p.name; img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image'; t.appendChild(img);
+
         const meta=document.createElement('div'); meta.className='meta';
         const name=document.createElement('div'); name.className='name'; name.textContent=p.name;
         const sub=document.createElement('div'); sub.className='sub';
         const bits=[]; if(p.category) bits.push(p.category); if(p.imprint) bits.push(p.imprint); if(p.minQty) bits.push(`Min ${p.minQty}`);
         sub.textContent = bits.join(' • ');
+
         const price=document.createElement('div'); price.className='price';
         if(p.minPrice!=null && p.maxPrice!=null){
           price.textContent = (p.minPrice===p.maxPrice)? `$${p.minPrice.toFixed(2)}` : `$${p.minPrice.toFixed(2)} – $${p.maxPrice.toFixed(2)}`;
         }
+
         const chips=document.createElement('div');
         if(p.setup){ const c=document.createElement('span'); c.className='chip'; c.textContent=`Setup: $${p.setup}`; chips.appendChild(c); }
         if(p.repeat){ const c=document.createElement('span'); c.className='chip'; c.textContent=`Repeat: $${p.repeat}`; chips.appendChild(c); }
         if(p.lead){ const c=document.createElement('span'); c.className='chip'; c.textContent=`Lead: ${p.lead}d`; chips.appendChild(c); }
-        meta.appendChild(name); if(sub.textContent) meta.appendChild(sub); if(price.textContent) meta.appendChild(price); if(chips.children.length) meta.appendChild(chips);
 
         const sizes=document.createElement('div'); sizes.className='sizes';
         if(p.variants && p.variants.length){
@@ -149,9 +258,10 @@
         }
 
         const actions=document.createElement('div'); actions.className='actions';
-        if(p.preview){ const a=document.createElement('a'); a.className='btn primary'; a.href=p.preview; a.target='_blank'; a.rel='noopener'; a.textContent='3D Preview'; actions.appendChild(a); }
+        if(p.preview){ const a=document.createElement('a'); a.className='btn'; a.href=p.preview; a.target='_blank'; a.rel='noopener'; a.textContent='3D Preview'; actions.appendChild(a); }
         if(p.vendorSku){ const s=document.createElement('span'); s.className='muted'; s.textContent=`SKU: ${p.vendorSku}`; actions.appendChild(s); }
 
+        meta.appendChild(name); if(sub.textContent) meta.appendChild(sub); if(price.textContent) meta.appendChild(price); if(chips.children.length) meta.appendChild(chips);
         wrap.appendChild(t); wrap.appendChild(meta); wrap.appendChild(sizes); wrap.appendChild(actions);
         return wrap;
       }
