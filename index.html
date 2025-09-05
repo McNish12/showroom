@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Honors Showroom</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="robots" content="noindex" />
+</head>
+<body>
+  <header class="container">
+    <h1>Honors Showroom</h1>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search name, vendor, SKU…" />
+      <select id="category"><option value="">All categories</option></select>
+      <select id="sort">
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="price-asc">Price ↑</option>
+        <option value="price-desc">Price ↓</option>
+      </select>
+    </div>
+  </header>
+
+  <main id="grid" class="grid container" aria-live="polite"></main>
+
+  <template id="card-tpl">
+    <article class="card">
+      <img class="card-img" alt="" />
+      <div class="card-body">
+        <h2 class="card-title"></h2>
+        <p class="card-sub"></p>
+        <p class="card-desc"></p>
+        <div class="card-meta"></div>
+        <div class="card-actions"></div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    /* Google Sheet → Showroom CSV (read-only) */
+    const SHEET_CSV = "https://docs.google.com/spreadsheets/d/1NHArBcR5PwZORwgUesTLvIv_TALCmq2i6qdwrTyzpCA/gviz/tq?tqx=out:csv&sheet=Showroom";
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
