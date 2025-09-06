@@ -2,7 +2,7 @@
 const COLUMN_MAP = {
   name:       "Name",     // exact header for name
   price1:     "Price 1",  // exact header for Price 1
-  imageUrl:   "imageUrl"  // exact header for image URL
+  imageUrl:   "image"  // exact header for image URL
 };
 
 /***** CSV fetch + parsing *****/
