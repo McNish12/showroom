@@ -229,8 +229,9 @@
         return m;
       }, {});
 
+      const statuses = products.map(p=>pick(p, PRODUCT_COLS.status));
       const catalog = products
-        .filter(p => norm(pick(p, PRODUCT_COLS.status))==='approved')
+        .filter((p,i) => norm(statuses[i])==='approved')
         .map(p=>{
           const name=pick(p, PRODUCT_COLS.name);
           const vs=(byProduct[name]||[]).slice();
@@ -258,10 +259,11 @@
         });
 
       if(!catalog.length){
+        const msg = (products.length && statuses.some(s=>String(s).trim()))
+          ? 'No approved products found.'
+          : 'Check published CSV headers—no matching aliases found.';
         document.getElementById('cards').innerHTML =
-          `<div style="padding:16px;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;">
-             Check published CSV headers—no matching aliases found.
-           </div>`;
+          `<div style="padding:16px;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;">${msg}</div>`;
         return;
       }
 
