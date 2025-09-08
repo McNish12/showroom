@@ -101,12 +101,7 @@
         <img src="https://github.com/McNish12/Rocket-Catalog/blob/main/images/Honors%20Thick%20Logo.png?raw=true
 " alt="Honors">
       </a>
-      <nav class="navlinks">
-        <a href="https://www.honorsone.com/awards/" target="_blank" rel="noopener">Awards</a>
-        <a href="https://www.honorsone.com/promotional-products/" target="_blank" rel="noopener">Promotional Products</a>
-        <a href="https://www.honorsone.com/apparel/" target="_blank" rel="noopener">Apparel</a>
-        <a href="https://www.honorsone.com/contact/" target="_blank" rel="noopener">Contact</a>
-      </nav>
+      <nav class="navlinks" id="nav"></nav>
     </div>
 
     <!-- Search + filters -->
@@ -171,6 +166,15 @@
     const normId=id=>norm(id).replace(/^rk-/,'');
     const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
     const uniq=a=>[...new Set(a)];
+    const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
+    function displayPrice(p){ const n=Number(p); return Number.isFinite(n)?fmtUSD.format(n):'Quote Upon Request'; }
+    function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+    function buildNavFromCategories(products){
+      const categories=[...new Set(products.map(p=>p.category).filter(Boolean))].sort();
+      const navEl=document.querySelector('#nav');
+      if(!navEl) return;
+      navEl.innerHTML=categories.map(cat=>`<a href="#/c/${slug(cat)}" class="nav-link">${cat}</a>`).join('');
+    }
 
     // Resolve values using possible header aliases
     function pick(row, aliases){
@@ -262,6 +266,7 @@
             minPrice,maxPrice
           };
         });
+      buildNavFromCategories(catalog);
 
       if(!catalog.length){
         const msg = (products.length && (statuses.some(s=>String(s).trim()) || approvals.some(a=>String(a).trim())))
@@ -312,7 +317,11 @@
 
         const price=document.createElement('div'); price.className='price';
         if(p.minPrice!=null && p.maxPrice!=null){
-          price.textContent = (p.minPrice===p.maxPrice)? `$${p.minPrice.toFixed(2)}` : `$${p.minPrice.toFixed(2)} – $${p.maxPrice.toFixed(2)}`;
+          const min=displayPrice(p.minPrice);
+          const max=displayPrice(p.maxPrice);
+          price.textContent = (p.minPrice===p.maxPrice)? min : `${min} – ${max}`;
+        } else {
+          price.textContent = displayPrice('');
         }
 
         const chips=document.createElement('div');
@@ -320,13 +329,12 @@
         if(p.repeat){ const c=document.createElement('span'); c.className='chip'; c.textContent=`Repeat: $${p.repeat}`; chips.appendChild(c); }
         if(p.lead){ const c=document.createElement('span'); c.className='chip'; c.textContent=`Lead: ${p.lead}d`; chips.appendChild(c); }
 
-        const sizes=document.createElement('div'); sizes.className='sizes';
         if(p.variants && p.variants.length){
+          const sizes=document.createElement('div'); sizes.className='sizes';
           const dl=document.createElement('dl'); const dt=document.createElement('dt'); dt.textContent='Sizes & Prices'; dl.appendChild(dt);
-          p.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.size||''} — ${v.price||''}`; dl.appendChild(dd); });
+          p.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.size||''} — ${displayPrice(v.price)}`; dl.appendChild(dd); });
           sizes.appendChild(dl);
-        } else {
-          sizes.innerHTML='<span class="muted">No sizes listed yet</span>';
+          wrap.appendChild(sizes);
         }
 
         const actions=document.createElement('div'); actions.className='actions';
@@ -334,7 +342,7 @@
         if(p.vendorSku){ const s=document.createElement('span'); s.className='muted'; s.textContent=`SKU: ${p.vendorSku}`; actions.appendChild(s); }
 
         meta.appendChild(name); if(sub.textContent) meta.appendChild(sub); if(price.textContent) meta.appendChild(price); if(chips.children.length) meta.appendChild(chips);
-        wrap.appendChild(t); wrap.appendChild(meta); wrap.appendChild(sizes); wrap.appendChild(actions);
+        wrap.appendChild(t); wrap.appendChild(meta); wrap.appendChild(actions);
         return wrap;
       }
 
