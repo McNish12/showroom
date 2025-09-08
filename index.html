@@ -171,36 +171,99 @@
     const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
     const uniq=a=>[...new Set(a)];
 
+    // Resolve values using possible header aliases
+    function pick(row, aliases){
+      for(const key of aliases){
+        const v=row[key];
+        if(v!=null && String(v).trim()!=='') return v;
+      }
+      return '';
+    }
+
+    // Acceptable column names for each logical field
+    const PRODUCT_COLS={
+      status:    ['Status','Approval Status','status','approved'],
+      name:      ['Product Name','Name','Item Name','title'],
+      category:  ['Category','Categories','category'],
+      vendor:    ['Vendor','Supplier','vendor','supplier'],
+      vendorSku: ['Vendor SKU','SKU','Supplier SKU','vendor_sku','sku'],
+      preview:   ['Preview Link','3D Preview URL','Preview URL','model_3d_url','Model 3D URL'],
+      thumb:     ['Thumbnail URL','Image','Image URL','Primary Image','primary_image_url','image_url','primary image'],
+      setup:     ['Setup Charge (USD)','Setup','Setup Charge','setup_charge_usd','setup_charge'],
+      repeat:    ['Repeat Setup (USD)','Repeat Setup','Repeat','repeat_setup_usd','repeat_setup'],
+      setupNotes:['Setup Notes','Imprint Notes','Notes','setup_notes','imprint_notes'],
+      imprint:   ['Imprint Method','Imprint','Decoration','imprint','decoration'],
+      lead:      ['Lead Time (days)','Lead Time','Lead Days','lead_time_days','lead_time'],
+      minQty:    ['Min Qty','Minimum Qty','Minimum Quantity','min_qty','minimum_quantity'],
+      tags:      ['Tags','Keywords','Search Tags','tags','keywords']
+    };
+    const VARIANT_COLS={
+      productName:['Product Name','Parent Name','Item Name','product_id','Product ID'],
+      size:       ['Size','Option','Variant','Spec','option1_value','size'],
+      price:      ['Price','Unit Price','Cost','price','unit_price']
+    };
+
+    function logUnmatched(rows, cols, label){
+      const sample=rows.slice(0,3).map((row,i)=>{
+        const missing=[];
+        for(const [field,aliases] of Object.entries(cols)){
+          if(!aliases.some(a=>a in row)) missing.push(field);
+        }
+        return missing.length?{row:i+1,missing}:null;
+      }).filter(Boolean);
+      if(sample.length) console.warn(`Unmatched ${label} columns`, sample);
+    }
+
     async function main(){
       const [products, variants] = await Promise.all([fetchCSV(PRODUCTS_CSV), fetchCSV(VARIANTS_CSV)]);
-      const byProduct = variants.reduce((m,v)=>{const k=(v['Product Name']||'').trim(); if(!k) return m; (m[k]=m[k]||[]).push(v); return m;}, {});
+
+      logUnmatched(products, PRODUCT_COLS, 'product');
+      logUnmatched(variants, VARIANT_COLS, 'variant');
+
+      const byProduct = variants.reduce((m,v)=>{
+        const k=(pick(v, VARIANT_COLS.productName)||'').trim();
+        if(!k) return m;
+        const size=pick(v, VARIANT_COLS.size);
+        const price=pick(v, VARIANT_COLS.price);
+        (m[k]=m[k]||[]).push({size,price});
+        return m;
+      }, {});
+
       const catalog = products
-        .filter(p => norm(p.Status)==='approved')
+        .filter(p => norm(pick(p, PRODUCT_COLS.status))==='approved')
         .map(p=>{
-          const name=p['Product Name']||'';
+          const name=pick(p, PRODUCT_COLS.name);
           const vs=(byProduct[name]||[]).slice();
-          const nums=vs.map(v=>toNum(v.Price)).filter(n=>n!=null);
+          const nums=vs.map(v=>toNum(v.price)).filter(n=>n!=null);
           const minPrice=nums.length?Math.min(...nums):null;
           const maxPrice=nums.length?Math.max(...nums):null;
-          vs.sort((a,b)=>{const na=toNum(a.Price),nb=toNum(b.Price); if(na!=null&&nb!=null) return na-nb; if(na!=null) return -1; if(nb!=null) return 1; return (a.Size||'').localeCompare(b.Size||'');});
+          vs.sort((a,b)=>{const na=toNum(a.price),nb=toNum(b.price); if(na!=null&&nb!=null) return na-nb; if(na!=null) return -1; if(nb!=null) return 1; return (a.size||'').localeCompare(b.size||'');});
           return {
             name,
-            category:p.Category||'',
-            vendor:p.Vendor||'',
-            vendorSku:p['Vendor SKU']||'',
-            preview:p['Preview Link']||'',
-            thumb:p['Thumbnail URL']||'',
-            setup:p['Setup Charge (USD)']||'',
-            repeat:p['Repeat Setup (USD)']||'',
-            setupNotes:p['Setup Notes']||'',
-            imprint:p['Imprint Method']||'',
-            lead:p['Lead Time (days)']||'',
-            minQty:p['Min Qty']||'',
-            tags:p.Tags||'',
+            category:pick(p, PRODUCT_COLS.category),
+            vendor:pick(p, PRODUCT_COLS.vendor),
+            vendorSku:pick(p, PRODUCT_COLS.vendorSku),
+            preview:pick(p, PRODUCT_COLS.preview),
+            thumb:pick(p, PRODUCT_COLS.thumb),
+            setup:pick(p, PRODUCT_COLS.setup),
+            repeat:pick(p, PRODUCT_COLS.repeat),
+            setupNotes:pick(p, PRODUCT_COLS.setupNotes),
+            imprint:pick(p, PRODUCT_COLS.imprint),
+            lead:pick(p, PRODUCT_COLS.lead),
+            minQty:pick(p, PRODUCT_COLS.minQty),
+            tags:pick(p, PRODUCT_COLS.tags),
             variants:vs,
             minPrice,maxPrice
           };
         });
+
+      if(!catalog.length){
+        document.getElementById('cards').innerHTML =
+          `<div style="padding:16px;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;">
+             Check published CSV headers—no matching aliases found.
+           </div>`;
+        return;
+      }
 
       // Facets
       const facets={
@@ -253,7 +316,7 @@
         const sizes=document.createElement('div'); sizes.className='sizes';
         if(p.variants && p.variants.length){
           const dl=document.createElement('dl'); const dt=document.createElement('dt'); dt.textContent='Sizes & Prices'; dl.appendChild(dt);
-          p.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.Size||''} — ${v.Price||''}`; dl.appendChild(dd); });
+          p.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.size||''} — ${v.price||''}`; dl.appendChild(dd); });
           sizes.appendChild(dl);
         } else {
           sizes.innerHTML='<span class="muted">No sizes listed yet</span>';
