@@ -168,6 +168,7 @@
       return rows.filter(r=>r.length).map(r=>{const o={}; headers.forEach((h,i)=>o[h]=r[i]??""); return o;});
     }
     const norm=s=>(s||'').toString().toLowerCase();
+    const normId=id=>norm(id).replace(/^rk-/,'');
     const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
     const uniq=a=>[...new Set(a)];
 
@@ -183,6 +184,7 @@
     // Acceptable column names for each logical field
     const PRODUCT_COLS={
       status:    ['Status','Approval Status','status','approved'],
+      slug:      ['Slug','Product ID','product_id','slug','ID','id'],
       name:      ['Product Name','Name','Item Name','title'],
       category:  ['Category','Categories','category'],
       vendor:    ['Vendor','Supplier','vendor','supplier'],
@@ -198,9 +200,9 @@
       tags:      ['Tags','Keywords','Search Tags','tags','keywords']
     };
     const VARIANT_COLS={
-      productName:['Product Name','Parent Name','Item Name','product_id','Product ID'],
-      size:       ['Size','Option','Variant','Spec','option1_value','size'],
-      price:      ['Price','Unit Price','Cost','price','unit_price']
+      productId: ['Product ID','product_id','Slug','slug','ID','id'],
+      size:      ['Size','Option','Variant','Spec','option1_value','size'],
+      price:     ['Price','Unit Price','Cost','price','unit_price']
     };
 
     function logUnmatched(rows, cols, label){
@@ -221,7 +223,7 @@
       logUnmatched(variants, VARIANT_COLS, 'variant');
 
       const byProduct = variants.reduce((m,v)=>{
-        const k=(pick(v, VARIANT_COLS.productName)||'').trim();
+        const k=normId(pick(v, VARIANT_COLS.productId));
         if(!k) return m;
         const size=pick(v, VARIANT_COLS.size);
         const price=pick(v, VARIANT_COLS.price);
@@ -232,8 +234,9 @@
       const catalog = products
         .filter(p => norm(pick(p, PRODUCT_COLS.status))==='approved')
         .map(p=>{
+          const id=normId(pick(p, PRODUCT_COLS.slug));
           const name=pick(p, PRODUCT_COLS.name);
-          const vs=(byProduct[name]||[]).slice();
+          const vs=(byProduct[id]||[]).slice();
           const nums=vs.map(v=>toNum(v.price)).filter(n=>n!=null);
           const minPrice=nums.length?Math.min(...nums):null;
           const maxPrice=nums.length?Math.max(...nums):null;
