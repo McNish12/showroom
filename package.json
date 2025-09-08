@@ -1,0 +1,10 @@
+{
+  "name": "rocket-catalog",
+  "private": true,
+  "scripts": {
+    "start": "http-server ./ -p ${PORT:-3000} -c-1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
