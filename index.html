@@ -183,7 +183,7 @@
 
     // Acceptable column names for each logical field
     const PRODUCT_COLS={
-      status:    ['Status','Approval Status','status','approved'],
+      status:    ['Status','Approval Status','status'],
       slug:      ['Slug','Product ID','product_id','slug','ID','id'],
       name:      ['Product Name','Name','Item Name','title'],
       category:  ['Category','Categories','category'],
@@ -197,7 +197,8 @@
       imprint:   ['Imprint Method','Imprint','Decoration','imprint','decoration'],
       lead:      ['Lead Time (days)','Lead Time','Lead Days','lead_time_days','lead_time'],
       minQty:    ['Min Qty','Minimum Qty','Minimum Quantity','min_qty','minimum_quantity'],
-      tags:      ['Tags','Keywords','Search Tags','tags','keywords']
+      tags:      ['Tags','Keywords','Search Tags','tags','keywords'],
+      approved:  ['Approved','approved']
     };
     const VARIANT_COLS={
       productId: ['Product ID','product_id','Slug','slug','ID','id'],
@@ -232,8 +233,9 @@
       }, {});
 
       const statuses = products.map(p=>pick(p, PRODUCT_COLS.status));
+      const approvals = products.map(p=>pick(p, PRODUCT_COLS.approved));
       const catalog = products
-        .filter((p,i) => norm(statuses[i])==='approved')
+        .filter((p,i) => norm(statuses[i])==='approved' || norm(approvals[i])==='true')
         .map(p=>{
           const id=normId(pick(p, PRODUCT_COLS.slug));
           const name=pick(p, PRODUCT_COLS.name);
@@ -262,7 +264,7 @@
         });
 
       if(!catalog.length){
-        const msg = (products.length && statuses.some(s=>String(s).trim()))
+        const msg = (products.length && (statuses.some(s=>String(s).trim()) || approvals.some(a=>String(a).trim())))
           ? 'No approved products found.'
           : 'Check published CSV headers—no matching aliases found.';
         document.getElementById('cards').innerHTML =
