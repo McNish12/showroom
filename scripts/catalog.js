@@ -234,7 +234,7 @@ async function main(){
 
     const hero=document.getElementById('detail-hero');
     hero.innerHTML='';
-    const gallery=(product.gallery||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const gallery=(product.gallery||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean);
     const heroImg=document.createElement('img');
     heroImg.src=gallery[0]||product.thumb||'https://via.placeholder.com/800x600?text=No+Image';
     hero.appendChild(heroImg);
