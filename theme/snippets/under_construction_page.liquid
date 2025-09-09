@@ -1,0 +1,17 @@
+{% comment %} path: theme/snippets/under_construction_page.liquid {% endcomment %}
+<section class="uc" style="background: {{ settings.under_construction_bg_color }};">
+  <div class="wrap uc-box">
+    <h1 style="
+        font-family: {{ settings.ucheader_font_family }};
+        font-size: {{ settings.ucheader_font_size }};
+        color: {{ settings.ucheader_text_color }};">
+      {{ settings.under_construction_header }}
+    </h1>
+    <p style="
+        font-family: {{ settings.ucmessage_font_family }};
+        font-size: {{ settings.ucmessage_font_size }};
+        color: {{ settings.ucmessage_text_color }};">
+      {{ settings.under_construction_message }}
+    </p>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+{
+  "current_theme": "classic",
+  "display_slideshow": true,
+  "show_top_navbar_notification": false,
+  "top_navbar_notification_text": "Free 2-day shipping on orders over $99. Use code ROCKET.",
+  "top_navbar_notification_bg": "#0d6efd",
+  "top_navbar_notification_color": "#ffffff",
+  "display_under_construction_page": false,
+  "under_construction_header": "We\u2019re polishing the boosters.",
+  "under_construction_message": "The Rocket Catalog is in final approach. Check back soon or contact support@honorsone.com.",
+  "under_construction_bg_color": "#111827",
+  "ucheader_font_family": "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+  "ucheader_font_size": "28px",
+  "ucheader_text_color": "#ffffff",
+  "ucmessage_font_family": "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+  "ucmessage_font_size": "18px",
+  "ucmessage_text_color": "#cbd5e1"
+}

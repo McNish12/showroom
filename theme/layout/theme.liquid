@@ -1,0 +1,37 @@
+{% comment %} path: theme/layout/theme.liquid {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% seo_tags %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="{{ 'favicon.png' | asset_url }}">
+
+  {{ 'default-main.css' | asset_url | stylesheet_tag }}
+  {{ 'custom-main.css' | asset_url | stylesheet_tag }}
+  {% if settings.current_theme == "modern" %}{{ "minimal-main.css" | asset_url | stylesheet_tag }}{% endif %}
+  {% if settings.current_theme == "stylistic" %}{{ "blocks-main.css" | asset_url | stylesheet_tag }}{% endif %}
+</head>
+<body class="theme-{{ settings.current_theme | default: 'classic' }}">
+  {% if settings.display_under_construction_page %}
+    {% include 'under_construction_page' %}
+    <div id="homecontent">
+  {% endif %}
+
+  {% include 'header' %}
+  {% include 'notification' %}
+
+  {% if template_name == 'index' and settings.display_slideshow %}
+    {% include 'bootstrap-carousel' %}
+  {% endif %}
+
+  <div class="content-container mx-xl-auto mx-xxl-auto my-3 wrap">
+    {{ content_for_layout }}
+  </div>
+
+  {% if settings.current_theme == "classic" %}{% include 'footer' %}{% endif %}
+  {% if settings.current_theme == "modern" %}{% include 'minimal_footer' %}{% endif %}
+  {% if settings.current_theme == "stylistic" %}{% include 'blocks_footer' %}{% endif %}
+
+  {{ 'sitewide.js' | asset_url | script_tag }}
+</body>
+</html>

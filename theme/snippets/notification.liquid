@@ -1,0 +1,8 @@
+{% comment %} path: theme/snippets/notification.liquid {% endcomment %}
+{% if settings.show_top_navbar_notification %}
+<div class="top-banner" style="background: {{ settings.top_navbar_notification_bg }}; color: {{ settings.top_navbar_notification_color }};">
+  <div class="wrap">
+    <span class="banner-text">{{ settings.top_navbar_notification_text }}</span>
+  </div>
+</div>
+{% endif %}

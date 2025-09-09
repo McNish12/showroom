@@ -1,0 +1,135 @@
+{
+  "name": "Rocket Catalog Theme Settings",
+  "groups": [
+    {
+      "name": "Theme Variant",
+      "settings": [
+        {
+          "type": "select",
+          "id": "current_theme",
+          "label": "Current Theme",
+          "options": [
+            {
+              "label": "Classic",
+              "value": "classic"
+            },
+            {
+              "label": "Modern",
+              "value": "modern"
+            },
+            {
+              "label": "Stylistic",
+              "value": "stylistic"
+            }
+          ],
+          "default": "classic"
+        }
+      ]
+    },
+    {
+      "name": "Homepage Slideshow",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "display_slideshow",
+          "label": "Display slideshow on homepage",
+          "default": true
+        }
+      ]
+    },
+    {
+      "name": "Notification Bar",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_top_navbar_notification",
+          "label": "Show top notification bar",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "top_navbar_notification_text",
+          "label": "Banner text",
+          "default": "Free 2-day shipping on orders over $99. Use code ROCKET."
+        },
+        {
+          "type": "color",
+          "id": "top_navbar_notification_bg",
+          "label": "Banner background",
+          "default": "#0d6efd"
+        },
+        {
+          "type": "color",
+          "id": "top_navbar_notification_color",
+          "label": "Banner text color",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "name": "Under Construction",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "display_under_construction_page",
+          "label": "Display Under Construction overlay",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "under_construction_header",
+          "label": "UC Header",
+          "default": "We\u2019re polishing the boosters."
+        },
+        {
+          "type": "text",
+          "id": "under_construction_message",
+          "label": "UC Message",
+          "default": "The Rocket Catalog is in final approach. Check back soon or contact support@honorsone.com."
+        },
+        {
+          "type": "color",
+          "id": "under_construction_bg_color",
+          "label": "UC Background",
+          "default": "#111827"
+        },
+        {
+          "type": "text",
+          "id": "ucheader_font_family",
+          "label": "UC Header Font Family",
+          "default": "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+        },
+        {
+          "type": "text",
+          "id": "ucheader_font_size",
+          "label": "UC Header Font Size",
+          "default": "28px"
+        },
+        {
+          "type": "color",
+          "id": "ucheader_text_color",
+          "label": "UC Header Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "text",
+          "id": "ucmessage_font_family",
+          "label": "UC Message Font Family",
+          "default": "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+        },
+        {
+          "type": "text",
+          "id": "ucmessage_font_size",
+          "label": "UC Message Font Size",
+          "default": "18px"
+        },
+        {
+          "type": "color",
+          "id": "ucmessage_text_color",
+          "label": "UC Message Text Color",
+          "default": "#cbd5e1"
+        }
+      ]
+    }
+  ]
+}
