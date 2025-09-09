@@ -18,8 +18,16 @@ function displayPrice(p){
   return Number.isFinite(n) && n > 0 ? fmtUSD.format(n) : 'Quote Upon Request';
 }
 function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+const FAST_TURN_CATEGORY = 'Fast Turn Category';
+function sortCategories(arr){
+  return arr.sort((a,b)=>{
+    if(a===FAST_TURN_CATEGORY) return -1;
+    if(b===FAST_TURN_CATEGORY) return 1;
+    return a.localeCompare(b);
+  });
+}
 function buildNavFromCategories(products){
-  const categories=[...new Set(products.map(p=>p.category).filter(Boolean))].sort();
+  const categories=sortCategories([...new Set(products.map(p=>p.category).filter(Boolean))]);
   const navEl=document.querySelector('#nav');
   if(!navEl) return;
   navEl.innerHTML='';
@@ -133,7 +141,7 @@ async function main(){
     cardsEl.innerHTML='';
     const groups={};
     list.forEach(p=>{const c=p.category||'Other';(groups[c]=groups[c]||[]).push(p);});
-    Object.keys(groups).sort().forEach(cat=>{
+    sortCategories(Object.keys(groups)).forEach(cat=>{
       const h=document.createElement('h3'); h.textContent=cat; cardsEl.appendChild(h);
       const grid=document.createElement('div'); grid.className='cards';
       groups[cat].forEach(p=>grid.appendChild(card(p)));
