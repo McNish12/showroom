@@ -55,7 +55,7 @@ const PRODUCT_COLS={
   slug:      ['Slug','Product ID','product_id','slug','ID','id'],
   name:      ['Product Name','Name','Item Name','title'],
   category:  ['Category','Categories','category'],
-  preview:   ['Preview Link','3D Preview URL','Preview URL','model_3d_url','Model 3D URL'],
+  preview:   ['Preview','preview','Preview Link','Preview URL','3D Preview URL','model_3d_url','Model 3D URL'],
   thumb:     ['Thumbnail URL','Image','Image URL','Primary Image','primary_image_url','image_url','primary image'],
   description:['Description','Product Description','description'],
   gallery:   ['Gallery URLs','Gallery','gallery_urls','gallery'],
@@ -213,6 +213,15 @@ async function main(){
       span.textContent=t;
       tagsEl.appendChild(span);
     });
+
+    const previewEl=document.getElementById('detail-preview');
+    if(product.preview){
+      previewEl.href=product.preview;
+      previewEl.textContent='Preview';
+      previewEl.style.display='inline-block';
+    } else {
+      previewEl.style.display='none';
+    }
 
     const priceEl=document.getElementById('detail-price');
     if(product.minPrice!=null && product.maxPrice!=null){

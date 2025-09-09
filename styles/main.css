@@ -70,6 +70,9 @@ a:hover{text-decoration:underline}
 .detail .imprint,.detail .tags{margin-top:8px;font-size:14px;color:var(--muted)}
 .detail .tags span{display:inline-block;background:#f1f5f9;color:#475569;border-radius:12px;padding:2px 8px;margin:0 4px 4px 0;font-size:12px}
 
+.detail .preview-link{display:inline-block;margin-top:12px;padding:10px 16px;background:var(--brand);color:#fff;border-radius:var(--radius);font-family:Montserrat,system-ui;font-weight:700;text-decoration:none}
+.detail .preview-link:hover{background:var(--brand-dark)}
+
 /* Variant pricing table styles */
 .detail .variant-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
 .detail .variant-table th,.detail .variant-table td{border:1px solid #ddd;padding:8px;text-align:left}
