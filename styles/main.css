@@ -50,10 +50,10 @@ main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
 .meta{padding:12px 14px;display:grid;gap:8px}
 .name{font-family:Montserrat,system-ui;font-weight:700}
 .price{font-family:Montserrat,system-ui;font-weight:700}
-.sizes{border-top:1px dashed #eee;padding:10px 14px;font-size:13px;line-height:1.6;color:#333}
-.sizes dt{font-family:Montserrat,system-ui;font-weight:700}
-.sizes dl{margin:0}
-.sizes dd{margin:0}
+#detail .price{font-family:Montserrat,system-ui;font-weight:700;font-size:20px;margin:8px 0}
+#detail .variant-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+#detail .variant-table th,#detail .variant-table td{border:1px solid #ddd;padding:8px;text-align:left}
+#detail .variant-table th{background:#f9fafb;font-family:Montserrat,system-ui;font-weight:700}
 .actions{display:flex;gap:8px;padding:12px 14px 14px}
 .btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;padding:8px 10px;font-size:14px;text-decoration:none;cursor:pointer}
 .btn:hover{background:var(--brand-dark);border-color:var(--brand-dark)}

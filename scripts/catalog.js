@@ -18,8 +18,16 @@ function displayPrice(p){
   return Number.isFinite(n) && n > 0 ? fmtUSD.format(n) : 'Quote Upon Request';
 }
 function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+const FAST_TURN_CATEGORY = 'Fast Turn Category';
+function sortCategories(arr){
+  return arr.sort((a,b)=>{
+    if(a===FAST_TURN_CATEGORY) return -1;
+    if(b===FAST_TURN_CATEGORY) return 1;
+    return a.localeCompare(b);
+  });
+}
 function buildNavFromCategories(products){
-  const categories=[...new Set(products.map(p=>p.category).filter(Boolean))].sort();
+  const categories=sortCategories([...new Set(products.map(p=>p.category).filter(Boolean))]);
   const navEl=document.querySelector('#nav');
   if(!navEl) return;
   navEl.innerHTML='';
@@ -133,7 +141,7 @@ async function main(){
     cardsEl.innerHTML='';
     const groups={};
     list.forEach(p=>{const c=p.category||'Other';(groups[c]=groups[c]||[]).push(p);});
-    Object.keys(groups).sort().forEach(cat=>{
+    sortCategories(Object.keys(groups)).forEach(cat=>{
       const h=document.createElement('h3'); h.textContent=cat; cardsEl.appendChild(h);
       const grid=document.createElement('div'); grid.className='cards';
       groups[cat].forEach(p=>grid.appendChild(card(p)));
@@ -187,6 +195,14 @@ async function main(){
     }
     layout.appendChild(imgCol);
     const info=document.createElement('div');
+    if(product.minPrice!=null && product.maxPrice!=null){
+      const price=document.createElement('div');
+      price.className='price';
+      const min=displayPrice(product.minPrice);
+      const max=displayPrice(product.maxPrice);
+      price.textContent = (product.minPrice===product.maxPrice)? min : `${min} – ${max}`;
+      info.appendChild(price);
+    }
     if(product.description){ const pDesc=document.createElement('p'); pDesc.textContent=product.description; info.appendChild(pDesc); }
     if(product.preview){
       let url = product.preview;
@@ -216,7 +232,26 @@ async function main(){
         }
       }).catch(()=>{});
     }
-    if(product.variants && product.variants.length){ const sizes=document.createElement('div'); sizes.className='sizes'; const dl=document.createElement('dl'); const dt=document.createElement('dt'); dt.textContent='Sizes & Prices'; dl.appendChild(dt); product.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.size||''} — ${displayPrice(v.price)}`; dl.appendChild(dd); }); sizes.appendChild(dl); info.appendChild(sizes); }
+    if(product.variants && product.variants.length){
+      const table=document.createElement('table');
+      table.className='variant-table';
+      const thead=document.createElement('thead');
+      thead.innerHTML='<tr><th>Size</th><th>Price</th></tr>';
+      table.appendChild(thead);
+      const tbody=document.createElement('tbody');
+      product.variants.forEach(v=>{
+        const tr=document.createElement('tr');
+        const sizeTd=document.createElement('td');
+        sizeTd.textContent=v.size||'';
+        const priceTd=document.createElement('td');
+        priceTd.textContent=displayPrice(v.price);
+        tr.appendChild(sizeTd);
+        tr.appendChild(priceTd);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      info.appendChild(table);
+    }
     layout.appendChild(info);
     c.appendChild(layout);
   }
