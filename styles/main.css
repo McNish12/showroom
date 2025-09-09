@@ -13,6 +13,9 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif}
 
+/* generic centered container */
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+
 /* Top utility bar */
 .topbar{background:#111;color:#fff;font-size:13px}
 .topbar .wrap{max-width:var(--wrap);margin:0 auto;padding:6px var(--pad);display:flex;gap:18px;justify-content:flex-end}
@@ -21,14 +24,14 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 
 /* Header with logo + nav */
 header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;z-index:10}
-.nav{max-width:var(--wrap);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:24px}
+.nav{padding:12px 0;display:flex;align-items:center;gap:24px}
 .brand img{height:40px;width:auto;display:block}
 .navlinks{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
 .navlinks a{font-family:Montserrat,system-ui;font-weight:700;text-transform:uppercase;font-size:14px;color:#111;text-decoration:none;padding:6px 8px;border-radius:8px}
 .navlinks a:hover{color:var(--brand)}
 
 /* Controls row under header */
-.controls{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad) 14px;display:grid;gap:10px;grid-template-columns:1fr 180px 200px 200px}
+.controls{padding:0 0 14px;display:grid;gap:10px;grid-template-columns:1fr 180px 200px 200px}
 .controls input,.controls select{padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px}
 
 /* Hero (static banner instead of Smart Slider) */
@@ -39,7 +42,7 @@ header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;z-inde
 .hero p{margin:0;opacity:.9}
 
 /* Main content */
-main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
+main .wrap{padding:18px var(--pad)}
 .muted{color:var(--muted);font-size:12px}
 
 /* Cards */
@@ -50,10 +53,12 @@ main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
 .meta{padding:12px 14px;display:grid;gap:8px}
 .name{font-family:Montserrat,system-ui;font-weight:700}
 .price{font-family:Montserrat,system-ui;font-weight:700}
-.sizes{border-top:1px dashed #eee;padding:10px 14px;font-size:13px;line-height:1.6;color:#333}
-.sizes dt{font-family:Montserrat,system-ui;font-weight:700}
-.sizes dl{margin:0}
-.sizes dd{margin:0}
+#detail .price{font-family:Montserrat,system-ui;font-weight:700;font-size:20px;margin:8px 0}
+#detail .close{font-size:24px;line-height:1;text-decoration:none;color:var(--text);display:inline-block;margin-bottom:12px}
+#detail .close:hover{color:var(--brand)}
+#detail .variant-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+#detail .variant-table th,#detail .variant-table td{border:1px solid #ddd;padding:8px;text-align:left}
+#detail .variant-table th{background:#f9fafb;font-family:Montserrat,system-ui;font-weight:700}
 .actions{display:flex;gap:8px;padding:12px 14px 14px}
 .btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;padding:8px 10px;font-size:14px;text-decoration:none;cursor:pointer}
 .btn:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
@@ -63,9 +68,12 @@ main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
 #detail .gallery{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 #detail .gallery img{width:120px;height:120px;object-fit:cover;border:1px solid #eee;border-radius:var(--radius)}
 
+/* Detail view container */
+#detail .wrap{padding:18px var(--pad)}
+
 /* Footer */
 footer{border-top:1px solid #eee;background:#fff}
-footer .wrap{max-width:var(--wrap);margin:0 auto;padding:20px var(--pad);display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+footer .wrap{padding:20px var(--pad);display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 footer img{height:50px;width:auto}
 
 @media (max-width:800px){
@@ -74,4 +82,3 @@ footer img{height:50px;width:auto}
   .hero .inner{padding:56px var(--pad)}
   .hero h1{font-size:30px}
 }
-.controls{display:none}
