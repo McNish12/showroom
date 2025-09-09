@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
   <title>Rocket Catalog</title>
 
-  <!-- Honors font for bold headings -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Faster Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"></noscript>
 
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
+  <div id="loading" aria-live="polite">Loading catalog…</div>
+  <div id="load-error" role="alert" hidden>Sorry—couldn’t load products. Please refresh.</div>
 
   <!-- Top utility bar -->
   <div class="topbar">
@@ -25,17 +31,24 @@
   <header>
     <div class="nav">
       <a class="brand" href="https://www.honorsone.com/" target="_blank" rel="noopener">
-        <img src="Assets/Honors/Honors%20Thick%20Logo.png" alt="Honors">
+        <img src="images/honors-logo.png" alt="Honors Company Logo" width="160" height="40" decoding="async">
       </a>
       <nav class="navlinks" id="nav"></nav>
     </div>
 
     <!-- Search + filters -->
     <div class="controls">
-      <input id="q" placeholder="Search products, tags, vendor…" />
-      <select id="cat"><option value="">All Categories</option></select>
-      <select id="imp"><option value="">All Imprint Methods</option></select>
-      <select id="tag"><option value="">All Tags</option></select>
+      <label for="q" class="sr-only">Search products</label>
+      <input id="q" name="q" type="search" placeholder="Search products…" autocomplete="off" aria-label="Search products">
+
+      <label for="category">Category</label>
+      <select id="category" aria-label="Filter by category"><option value="">All Categories</option></select>
+
+      <label for="method">Imprint Method</label>
+      <select id="method" aria-label="Filter by imprint method"><option value="">All Imprint Methods</option></select>
+
+      <label for="tags">Tags</label>
+      <select id="tags" aria-label="Filter by tag"><option value="">All Tags</option></select>
     </div>
   </header>
 
@@ -66,7 +79,7 @@
   <!-- Footer -->
   <footer>
     <div class="wrap">
-      <img src="Assets/Honors/Honors%20Thick%20Logo.png" alt="Honors">
+      <img src="images/honors-logo.png" alt="Honors Company Logo" width="160" height="40" decoding="async">
       <div>
         997 Rochester Road, Suite A • Troy, Michigan 48083<br>
         <a href="mailto:sales@honorsone.com">sales@honorsone.com</a> • 248.582.5200
@@ -74,8 +87,8 @@
     </div>
   </footer>
 
-    <!-- ===== Catalog JS ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="scripts/catalog.js"></script>
-  </body>
+  <!-- ===== Catalog JS ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="scripts/catalog.js" defer></script>
+</body>
 </html>
