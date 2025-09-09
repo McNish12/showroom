@@ -261,7 +261,7 @@ async function main(){
     const hash=location.hash;
     const detailEl=document.getElementById('detail');
     if(hash.startsWith('#/p/')){
-      showDetail(hash.slice(4));
+      showDetail(normId(hash.slice(4)));
     } else {
       detailEl.classList.remove('open');
       const m=hash.match(/^#\/c\/(.+)$/);
