@@ -146,8 +146,12 @@ async function main(){
     const groups={};
     list.forEach(p=>{const c=p.category||'Other';(groups[c]=groups[c]||[]).push(p);});
     sortCategories(Object.keys(groups)).forEach(cat=>{
-      const h=document.createElement('h3'); h.textContent=cat; cardsEl.appendChild(h);
-      const grid=document.createElement('div'); grid.className='card-grid';
+      const h=document.createElement('h3');
+      h.textContent = cat;
+      h.className = 'category-title';
+      cardsEl.appendChild(h);
+      const grid=document.createElement('div');
+      grid.className='card-grid';
       groups[cat].forEach(p=>grid.appendChild(productCard(p)));
       cardsEl.appendChild(grid);
     });
