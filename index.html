@@ -230,11 +230,11 @@
       logUnmatched(variants, VARIANT_COLS, 'variant');
 
       const byProduct = variants.reduce((m,v)=>{
-        const k=normId(pick(v, VARIANT_COLS.productId));
+        const k = normId(pick(v, VARIANT_COLS.productId));
         if(!k) return m;
-        const size=pick(v, VARIANT_COLS.size);
-        const price=pick(v, VARIANT_COLS.price);
-        (m[k]=m[k]||[]).push({size,price});
+        const size = pick(v, VARIANT_COLS.size);
+        const price = toNum(pick(v, VARIANT_COLS.price));
+        (m[k] = m[k] || []).push({ size, price });
         return m;
       }, {});
 
@@ -245,11 +245,17 @@
         .map(p=>{
           const id=normId(pick(p, PRODUCT_COLS.slug));
           const name=pick(p, PRODUCT_COLS.name);
-          const vs=(byProduct[id]||[]).slice();
-          const nums=vs.map(v=>toNum(v.price)).filter(n=>n!=null);
-          const minPrice=nums.length?Math.min(...nums):null;
-          const maxPrice=nums.length?Math.max(...nums):null;
-          vs.sort((a,b)=>{const na=toNum(a.price),nb=toNum(b.price); if(na!=null&&nb!=null) return na-nb; if(na!=null) return -1; if(nb!=null) return 1; return (a.size||'').localeCompare(b.size||'');});
+          const vs = (byProduct[id] || []).slice();
+          const nums = vs.map(v => v.price).filter(n => n != null);
+          const minPrice = nums.length ? Math.min(...nums) : null;
+          const maxPrice = nums.length ? Math.max(...nums) : null;
+          vs.sort((a,b)=>{
+            const na=a.price, nb=b.price;
+            if(na!=null&&nb!=null) return na-nb;
+            if(na!=null) return -1;
+            if(nb!=null) return 1;
+            return (a.size||'').localeCompare(b.size||'');
+          });
           return {
             id,
             name,
