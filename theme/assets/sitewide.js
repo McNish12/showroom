@@ -19,6 +19,10 @@
     slides.style.transform = `translateX(-${index*100}%)`;
     [...dots.children].forEach((el,i)=>el.classList.toggle('active', i===index));
   }
-  function start(){ timer = setInterval(()=>{ index=(index+1)%count; update(); }, 3500); }
+  function start(){ if(timer) return; timer = setInterval(()=>{ index=(index+1)%count; update(); }, 3500); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
   renderDots(); update(); start();
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop(); else start(); });
+  window.addEventListener('beforeunload', stop);
+  window.cleanupCarousel = stop;
 })();
