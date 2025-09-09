@@ -243,7 +243,15 @@ async function main(){
     thumbSlots.forEach((slot,i)=>{
       slot.innerHTML='';
       const url=gallery[i]||null;
-      if(url){ const im=document.createElement('img'); im.src=url; slot.appendChild(im); }
+      // Clear any existing click handler so they don't accumulate
+      slot.onclick=null;
+      if(url){
+        const im=document.createElement('img');
+        im.src=url;
+        slot.appendChild(im);
+        // Show the clicked thumbnail in the hero area
+        slot.onclick=()=>{ heroImg.src=url; };
+      }
     });
 
     const varEl=document.getElementById('detail-variants');
