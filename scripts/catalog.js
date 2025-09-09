@@ -12,7 +12,11 @@ const norm=s=>(s||'').toString().toLowerCase();
 const normId=id=>norm(id).replace(/^rk-/,'');
 const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
 const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
-function displayPrice(p){ const n=Number(p); return Number.isFinite(n)?fmtUSD.format(n):'Quote Upon Request'; }
+// Display formatted USD price when positive; otherwise show a quote request message
+function displayPrice(p){
+  const n=Number(p);
+  return Number.isFinite(n) && n > 0 ? fmtUSD.format(n) : 'Quote Upon Request';
+}
 function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 function buildNavFromCategories(products){
   const categories=[...new Set(products.map(p=>p.category).filter(Boolean))].sort();
