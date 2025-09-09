@@ -341,7 +341,34 @@
         layout.appendChild(imgCol);
         const info=document.createElement('div');
         if(product.description){ const pDesc=document.createElement('p'); pDesc.textContent=product.description; info.appendChild(pDesc); }
-        if(product.preview){ const iframe=document.createElement('iframe'); iframe.src=product.preview; iframe.loading='lazy'; iframe.style.width='100%'; iframe.style.height='480px'; iframe.style.border='0'; info.appendChild(iframe); }
+        if(product.preview){
+          let url = product.preview;
+          try{
+            const u = new URL(url);
+            if(u.hostname === 'viewer.shapr3d.com' && !u.searchParams.has('mode')){
+              u.searchParams.set('mode','embed');
+              url = u.toString();
+            }
+          } catch(err){}
+          const container=document.createElement('div');
+          const link=document.createElement('a');
+          link.textContent='View 3D Preview';
+          link.href=url; link.target='_blank'; link.rel='noopener';
+          link.className='btn';
+          container.appendChild(link);
+          info.appendChild(container);
+          fetch(url,{method:'HEAD'}).then(res=>{
+            const xfo=res.headers.get('x-frame-options');
+            const csp=res.headers.get('content-security-policy');
+            if(!xfo && !(csp && /frame-ancestors/i.test(csp))){
+              const iframe=document.createElement('iframe');
+              iframe.src=url; iframe.loading='lazy';
+              iframe.style.width='100%'; iframe.style.height='480px'; iframe.style.border='0';
+              container.innerHTML='';
+              container.appendChild(iframe);
+            }
+          }).catch(()=>{});
+        }
         if(product.variants && product.variants.length){ const sizes=document.createElement('div'); sizes.className='sizes'; const dl=document.createElement('dl'); const dt=document.createElement('dt'); dt.textContent='Sizes & Prices'; dl.appendChild(dt); product.variants.forEach(v=>{ const dd=document.createElement('dd'); dd.textContent=`${v.size||''} — ${displayPrice(v.price)}`; dl.appendChild(dd); }); sizes.appendChild(dl); info.appendChild(sizes); }
         layout.appendChild(info);
         c.appendChild(layout);
