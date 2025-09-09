@@ -1,27 +1,12 @@
-const $loading = document.getElementById('loading');
-const $error   = document.getElementById('load-error');
-function show(el){ el.hidden = false; }
-function hide(el){ el.hidden = true; }
-function debounce(fn, delay=200){
-  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
-}
-const $q = document.getElementById('q');
-
 // Published-to-web CSVs for Products & Variants
 const PRODUCTS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyKnlMtRQJKbmCkI7loITX-K8M-iF8jUfSwSQOw8wIio1eZLFKq_WsAfArkfG4eaGKQkuV3imHocOv/pub?gid=653601520&single=true&output=csv";
 const VARIANTS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyKnlMtRQJKbmCkI7loITX-K8M-iF8jUfSwSQOw8wIio1eZLFKq_WsAfArkfG4eaGKQkuV3imHocOv/pub?gid=140795318&single=true&output=csv";
 
-function fetchCSV(url){
-  return new Promise((resolve,reject)=>{
-    Papa.parse(url,{
-      download:true,
-      header:true,
-      worker:true,
-      skipEmptyLines:true,
-      complete: res => resolve(res.data.filter(row=>Object.values(row).some(v=>v!==undefined&&String(v).trim()!==""))),
-      error: err => reject(err)
-    });
-  });
+async function fetchCSV(url){
+  const res = await fetch(url,{cache:'no-store'});
+  const text = await res.text();
+  const { data } = Papa.parse(text,{header:true});
+  return data.filter(row=>Object.values(row).some(v=>v!==undefined&&String(v).trim()!==""));
 }
 const norm=s=>(s||'').toString().toLowerCase();
 const normId=id=>norm(id).replace(/^rk-/,'');
@@ -138,19 +123,8 @@ async function main(){
   }
 
   const cardsEl=document.getElementById('cards'), countEl=document.getElementById('count');
-  function handleSearch(){
-    handleRoute();
-  }
-  $q.addEventListener('input', debounce(() => {
-    handleSearch();
-  }, 200));
   function renderCatalog(catSlug){
-    const q = norm($q.value);
-    const list=catalog.filter(p=>{
-      const inCat = !catSlug || slug(p.category)===catSlug;
-      const matches = !q || norm(p.name).includes(q) || norm(p.category).includes(q);
-      return inCat && matches;
-    });
+    const list=catalog.filter(p=>!catSlug || slug(p.category)===catSlug);
     countEl.textContent = `${list.length} product${list.length===1?'':'s'} shown`;
     cardsEl.innerHTML='';
     const groups={};
@@ -166,14 +140,7 @@ async function main(){
   function card(p){
     const wrap=document.createElement('a'); wrap.className='card'; wrap.href=`#/p/${p.id}`;
     const t=document.createElement('div'); t.className='thumb';
-    const img=document.createElement('img');
-    img.alt=p.name;
-    img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image';
-    img.loading='lazy';
-    img.decoding='async';
-    img.width=400;
-    img.height=400;
-    t.appendChild(img);
+    const img=document.createElement('img'); img.alt=p.name; img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image'; t.appendChild(img);
 
     const meta=document.createElement('div'); meta.className='meta';
     const name=document.createElement('div'); name.className='name'; name.textContent=p.name;
@@ -268,17 +235,10 @@ async function main(){
   handleRoute();
 }
 
-async function loadCatalog(){
-  try{
-    show($loading);
-    hide($error);
-    await main();
-  } catch(e){
-    console.error('Catalog load failed:', e);
-    show($error);
-  } finally {
-    hide($loading);
-  }
-}
-
-loadCatalog();
+main().catch(err=>{
+  document.getElementById('cards').innerHTML =
+    `<div style="padding:16px;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;">
+       Error loading data. Check the published CSV URLs.<br><br>
+       <small>${err}</small>
+     </div>`;
+});
