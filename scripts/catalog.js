@@ -59,6 +59,8 @@ const PRODUCT_COLS={
   thumb:     ['Thumbnail URL','Image','Image URL','Primary Image','primary_image_url','image_url','primary image'],
   description:['Description','Product Description','description'],
   gallery:   ['Gallery URLs','Gallery','gallery_urls','gallery'],
+  imprint:   ['Imprint Methods','Imprint Method','imprint_methods','imprint'],
+  tags:      ['Tags','Tag','tags'],
   approved:  ['Approved','approved']
 };
 const VARIANT_COLS={
@@ -119,6 +121,8 @@ async function main(){
         thumb:pick(p, PRODUCT_COLS.thumb),
         description:pick(p, PRODUCT_COLS.description),
         gallery:pick(p, PRODUCT_COLS.gallery),
+        imprint:pick(p, PRODUCT_COLS.imprint),
+        tags:pick(p, PRODUCT_COLS.tags),
         variants:vs,
         minPrice,maxPrice
       };
@@ -143,21 +147,32 @@ async function main(){
     list.forEach(p=>{const c=p.category||'Other';(groups[c]=groups[c]||[]).push(p);});
     sortCategories(Object.keys(groups)).forEach(cat=>{
       const h=document.createElement('h3'); h.textContent=cat; cardsEl.appendChild(h);
-      const grid=document.createElement('div'); grid.className='cards';
-      groups[cat].forEach(p=>grid.appendChild(card(p)));
+      const grid=document.createElement('div'); grid.className='card-grid';
+      groups[cat].forEach(p=>grid.appendChild(productCard(p)));
       cardsEl.appendChild(grid);
     });
   }
 
-  function card(p){
-    const wrap=document.createElement('a'); wrap.className='card'; wrap.href=`#/p/${p.id}`;
-    const t=document.createElement('div'); t.className='thumb';
-    const img=document.createElement('img'); img.alt=p.name; img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image'; t.appendChild(img);
+  function productCard(p){
+    const wrap=document.createElement('a');
+    wrap.className='card';
+    wrap.href=`#/p/${p.id}`;
 
-    const meta=document.createElement('div'); meta.className='meta';
-    const name=document.createElement('div'); name.className='name'; name.textContent=p.name;
+    const imgWrap=document.createElement('div');
+    imgWrap.className='card-thumb';
+    const img=document.createElement('img');
+    img.alt=p.name;
+    img.src=p.thumb||'https://via.placeholder.com/800x600?text=No+Image';
+    imgWrap.appendChild(img);
 
-    const price=document.createElement('div'); price.className='price';
+    const meta=document.createElement('div');
+    meta.className='card-meta';
+    const title=document.createElement('div');
+    title.className='card-title';
+    title.textContent=p.name;
+
+    const price=document.createElement('div');
+    price.className='card-price';
     if(p.minPrice!=null && p.maxPrice!=null){
       const min=displayPrice(p.minPrice);
       const max=displayPrice(p.maxPrice);
@@ -166,8 +181,11 @@ async function main(){
       price.textContent = displayPrice('');
     }
 
-    meta.appendChild(name); if(price.textContent) meta.appendChild(price);
-    wrap.appendChild(t); wrap.appendChild(meta);
+    meta.appendChild(title);
+    if(price.textContent) meta.appendChild(price);
+
+    wrap.appendChild(imgWrap);
+    wrap.appendChild(meta);
     return wrap;
   }
 
@@ -175,63 +193,48 @@ async function main(){
 
   function showDetail(id){
     const product=catalog.find(p=>p.id===id);
-    const mainEl=document.querySelector('main');
     const detailEl=document.getElementById('detail');
-    if(!product){ location.hash=''; return; }
-    mainEl.style.display='none';
-    detailEl.style.display='block';
-    const c=document.getElementById('detail-content');
-    c.innerHTML='';
-    const back=document.createElement('a'); back.href='#'; back.className='btn'; back.textContent='← Back to Catalog'; c.appendChild(back);
-    const title=document.createElement('h2'); title.textContent=product.name; c.appendChild(title);
-    const layout=document.createElement('div'); layout.className='layout';
-    const imgCol=document.createElement('div');
-    const mainImg=document.createElement('img'); mainImg.src=product.thumb||'https://via.placeholder.com/800x600?text=No+Image'; imgCol.appendChild(mainImg);
-    const gallery=(product.gallery||'').split(',').map(s=>s.trim()).filter(Boolean);
-    if(gallery.length){
-      const g=document.createElement('div'); g.className='gallery';
-      gallery.forEach(u=>{const im=document.createElement('img'); im.src=u; g.appendChild(im);});
-      imgCol.appendChild(g);
-    }
-    layout.appendChild(imgCol);
-    const info=document.createElement('div');
+    if(!product){ detailEl.classList.remove('open'); location.hash=''; return; }
+
+    detailEl.classList.add('open');
+
+    document.getElementById('detail-title').textContent=product.name;
+    document.getElementById('detail-desc').textContent=product.description||'';
+    document.getElementById('detail-imp').textContent=product.imprint||'';
+
+    const tagsEl=document.getElementById('detail-tags');
+    tagsEl.innerHTML='';
+    (product.tags||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>{
+      const span=document.createElement('span');
+      span.textContent=t;
+      tagsEl.appendChild(span);
+    });
+
+    const priceEl=document.getElementById('detail-price');
     if(product.minPrice!=null && product.maxPrice!=null){
-      const price=document.createElement('div');
-      price.className='price';
       const min=displayPrice(product.minPrice);
       const max=displayPrice(product.maxPrice);
-      price.textContent = (product.minPrice===product.maxPrice)? min : `${min} – ${max}`;
-      info.appendChild(price);
+      priceEl.textContent=(product.minPrice===product.maxPrice)?min:`${min} – ${max}`;
+    } else {
+      priceEl.textContent=displayPrice('');
     }
-    if(product.description){ const pDesc=document.createElement('p'); pDesc.textContent=product.description; info.appendChild(pDesc); }
-    if(product.preview){
-      let url = product.preview;
-      try{
-        const u = new URL(url);
-        if(u.hostname === 'viewer.shapr3d.com' && !u.searchParams.has('mode')){
-          u.searchParams.set('mode','embed');
-          url = u.toString();
-        }
-      } catch(err){}
-      const container=document.createElement('div');
-      const link=document.createElement('a');
-      link.textContent='View 3D Preview';
-      link.href=url; link.target='_blank'; link.rel='noopener';
-      link.className='btn';
-      container.appendChild(link);
-      info.appendChild(container);
-      fetch(url,{method:'HEAD'}).then(res=>{
-        const xfo=res.headers.get('x-frame-options');
-        const csp=res.headers.get('content-security-policy');
-        if(!xfo && !(csp && /frame-ancestors/i.test(csp))){
-          const iframe=document.createElement('iframe');
-          iframe.src=url; iframe.loading='lazy';
-          iframe.style.width='100%'; iframe.style.height='480px'; iframe.style.border='0';
-          container.innerHTML='';
-          container.appendChild(iframe);
-        }
-      }).catch(()=>{});
-    }
+
+    const hero=document.getElementById('detail-hero');
+    hero.innerHTML='';
+    const gallery=(product.gallery||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const heroImg=document.createElement('img');
+    heroImg.src=gallery[0]||product.thumb||'https://via.placeholder.com/800x600?text=No+Image';
+    hero.appendChild(heroImg);
+
+    const thumbSlots=detailEl.querySelectorAll('.thumb');
+    thumbSlots.forEach((slot,i)=>{
+      slot.innerHTML='';
+      const url=gallery[i]||null;
+      if(url){ const im=document.createElement('img'); im.src=url; slot.appendChild(im); }
+    });
+
+    const varEl=document.getElementById('detail-variants');
+    varEl.innerHTML='';
     if(product.variants && product.variants.length){
       const table=document.createElement('table');
       table.className='variant-table';
@@ -250,27 +253,25 @@ async function main(){
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
-      info.appendChild(table);
+      varEl.appendChild(table);
     }
-    layout.appendChild(info);
-    c.appendChild(layout);
   }
 
   function handleRoute(){
     const hash=location.hash;
-    const mainEl=document.querySelector('main');
     const detailEl=document.getElementById('detail');
     if(hash.startsWith('#/p/')){
       showDetail(hash.slice(4));
     } else {
-      detailEl.style.display='none';
-      mainEl.style.display='block';
+      detailEl.classList.remove('open');
       const m=hash.match(/^#\/c\/(.+)$/);
       renderCatalog(m?m[1]:'');
     }
   }
 
   window.addEventListener('hashchange', handleRoute);
+  document.getElementById('detail-overlay').addEventListener('click', ()=>{location.hash='';});
+  document.getElementById('detail-close').addEventListener('click', ()=>{location.hash='';});
   handleRoute();
 }
 

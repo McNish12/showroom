@@ -4,15 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rocket Catalog</title>
-
-  <!-- Honors font for bold headings -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-
-  <!-- Top utility bar -->
   <div class="topbar">
     <div class="wrap">
       <span>Email: <a href="mailto:sales@honorsone.com">sales@honorsone.com</a></span>
@@ -21,17 +16,14 @@
     </div>
   </div>
 
-  <!-- Header + nav -->
-  <header>
-    <div class="nav">
-      <a class="brand" href="https://mcnish12.github.io/Rocket-Catalog/#" target="_blank" rel="noopener">
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="#">
         <img src="Assets/Honors/Honors%20Thick%20Logo.png" alt="Honors">
       </a>
       <nav class="navlinks" id="nav"></nav>
     </div>
-
-    <!-- Search + filters -->
-    <div class="controls">
+    <div class="wrap controls">
       <input id="q" placeholder="Search products, tags, vendor…" />
       <select id="cat"><option value="">All Categories</option></select>
       <select id="imp"><option value="">All Imprint Methods</option></select>
@@ -39,21 +31,35 @@
     </div>
   </header>
 
-  <!-- Catalog -->
-  <main>
-    <div class="wrap">
-      <div id="count" class="muted" style="padding:4px 2px 12px"></div>
-      <div id="cards"></div>
-    </div>
+  <main class="wrap catalog">
+    <div id="count" class="muted" style="padding:4px 2px 12px"></div>
+    <div id="cards"></div>
   </main>
 
-  <section id="detail" style="display:none;">
-    <div class="wrap">
-      <div id="detail-content"></div>
+  <section id="detail" class="detail">
+    <div class="overlay" id="detail-overlay"></div>
+    <div class="drawer">
+      <button id="detail-close" class="close" aria-label="Close">×</button>
+      <div class="media">
+        <div id="detail-hero" class="hero"></div>
+        <div class="thumbs">
+          <div class="thumb"></div>
+          <div class="thumb"></div>
+          <div class="thumb"></div>
+          <div class="thumb"></div>
+        </div>
+      </div>
+      <div class="info">
+        <h2 id="detail-title"></h2>
+        <div id="detail-price" class="price"></div>
+        <p id="detail-desc"></p>
+        <div id="detail-imp" class="imprint"></div>
+        <div id="detail-tags" class="tags"></div>
+        <div id="detail-variants"></div>
+      </div>
     </div>
   </section>
 
-  <!-- Footer -->
   <footer>
     <div class="wrap">
       <img src="Assets/Honors/Honors%20Thick%20Logo.png" alt="Honors">
@@ -64,8 +70,7 @@
     </div>
   </footer>
 
-    <!-- ===== Catalog JS ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="scripts/catalog.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="scripts/catalog.js"></script>
+</body>
 </html>
