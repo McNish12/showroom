@@ -1,0 +1,17 @@
+name: Release Theme
+on:
+  push:
+    tags: ['v*']
+jobs:
+  build-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build theme zip
+        run: |
+          cd theme
+          zip -r ../rocket-theme-${GITHUB_REF_NAME}.zip .
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: rocket-theme-${{ github.ref_name }}.zip
