@@ -52,10 +52,12 @@ main .wrap{max-width:var(--wrap);margin:0 auto;padding:18px var(--pad)}
 .price{font-family:Montserrat,system-ui;font-weight:700}
 .sizes{border-top:1px dashed #eee;padding:10px 14px;font-size:13px;line-height:1.6;color:#333}
 .sizes dt{font-family:Montserrat,system-ui;font-weight:700}
+.sizes dl{margin:0}
+.sizes dd{margin:0}
 .actions{display:flex;gap:8px;padding:12px 14px 14px}
 .btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:10px;padding:8px 10px;font-size:14px;text-decoration:none;cursor:pointer}
 .btn:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
-#detail .layout{display:grid;gap:24px}
+#detail .layout{display:grid;gap:24px;align-items:flex-start}
 @media(min-width:800px){#detail .layout{grid-template-columns:1fr 1fr}}
 #detail img{max-width:100%;height:auto}
 #detail .gallery{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
