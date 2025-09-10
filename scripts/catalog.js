@@ -10,6 +10,7 @@ async function fetchCSV(url){
 }
 const norm=s=>(s||'').toString().toLowerCase();
 const normId=id=>norm(id).replace(/^rk-/,'');
+const normCat=s=>(s||'').toString().trim().toLowerCase();
 const toNum=x=>{ if(x==null) return null; const n=Number(String(x).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:null; };
 const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 // Display formatted USD price when positive; otherwise show a quote request message
@@ -20,14 +21,24 @@ function displayPrice(p){
 function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 const FAST_TURN_CATEGORY = 'Fast Turn Category';
 function sortCategories(arr){
+  const fast = normCat(FAST_TURN_CATEGORY);
   return arr.sort((a,b)=>{
-    if(a===FAST_TURN_CATEGORY) return -1;
-    if(b===FAST_TURN_CATEGORY) return 1;
-    return a.localeCompare(b);
+    const na=normCat(a);
+    const nb=normCat(b);
+    if(na===fast) return -1;
+    if(nb===fast) return 1;
+    return na.localeCompare(nb);
   });
 }
 function buildNavFromCategories(products){
-  const categories=sortCategories([...new Set(products.map(p=>p.category).filter(Boolean))]);
+  const map={};
+  products.forEach(p=>{
+    const name=(p.category||'').trim();
+    if(!name) return;
+    const key=normCat(name);
+    if(!(key in map)) map[key]=name;
+  });
+  const categories=sortCategories(Object.values(map));
   const navEl=document.querySelector('#nav');
   if(!navEl) return;
   navEl.innerHTML='';
@@ -140,19 +151,28 @@ async function main(){
 
   const cardsEl=document.getElementById('cards'), countEl=document.getElementById('count');
   function renderCatalog(catSlug){
-    const list=catalog.filter(p=>!catSlug || slug(p.category)===catSlug);
+    const list=catalog.filter(p=>{
+      const cat=normCat(p.category);
+      return !catSlug || slug(cat)===catSlug;
+    });
     countEl.textContent = `${list.length} product${list.length===1?'':'s'} shown`;
     cardsEl.innerHTML='';
     const groups={};
-    list.forEach(p=>{const c=p.category||'Other';(groups[c]=groups[c]||[]).push(p);});
-    sortCategories(Object.keys(groups)).forEach(cat=>{
+    list.forEach(p=>{
+      const name=(p.category||'').trim()||'Other';
+      const key=normCat(name);
+      (groups[key]=groups[key]||{name,items:[]}).items.push(p);
+    });
+    sortCategories(Object.values(groups).map(g=>g.name)).forEach(cat=>{
+      const key=normCat(cat);
+      const group=groups[key];
       const h=document.createElement('h3');
-      h.textContent = cat;
+      h.textContent = group.name;
       h.className = 'category-title';
       cardsEl.appendChild(h);
       const grid=document.createElement('div');
       grid.className='card-grid';
-      groups[cat].forEach(p=>grid.appendChild(productCard(p)));
+      group.items.forEach(p=>grid.appendChild(productCard(p)));
       cardsEl.appendChild(grid);
     });
   }
