@@ -254,24 +254,36 @@ async function main(){
 
     const hero=document.getElementById('detail-hero');
     hero.innerHTML='';
-    const gallery=(product.gallery||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean);
+
+    // Build gallery array and ensure the primary image is included
+    const galleryStr = product.gallery || '';
+    const gallery = galleryStr
+      .split(/[|,]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    if (product.thumb) {
+      // Prepend primary image if not already present
+      if (!gallery.length) {
+        gallery.push(product.thumb);
+      } else if (gallery[0] !== product.thumb) {
+        gallery.unshift(product.thumb);
+      }
+    }
+
     const heroImg=document.createElement('img');
-    heroImg.src=gallery[0]||product.thumb||'https://via.placeholder.com/800x600?text=No+Image';
+    heroImg.src=gallery[0]||'https://via.placeholder.com/800x600?text=No+Image';
     hero.appendChild(heroImg);
 
-    const thumbSlots=detailEl.querySelectorAll('.thumb');
-    thumbSlots.forEach((slot,i)=>{
-      slot.innerHTML='';
-      const url=gallery[i]||null;
-      // Clear any existing click handler so they don't accumulate
-      slot.onclick=null;
-      if(url){
-        const im=document.createElement('img');
-        im.src=url;
-        slot.appendChild(im);
-        // Show the clicked thumbnail in the hero area
-        slot.onclick=()=>{ heroImg.src=url; };
-      }
+    const thumbsWrap = detailEl.querySelector('.thumbs');
+    thumbsWrap.innerHTML = '';
+    gallery.forEach(url => {
+      const slot = document.createElement('div');
+      slot.className = 'thumb';
+      const im = document.createElement('img');
+      im.src = url;
+      slot.appendChild(im);
+      slot.onclick = () => { heroImg.src = url; };
+      thumbsWrap.appendChild(slot);
     });
 
     const varEl=document.getElementById('detail-variants');
