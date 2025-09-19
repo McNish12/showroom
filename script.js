@@ -519,16 +519,23 @@ function render(products) {
 /***** Data load *****/
 async function fetchCsv(url, { optional = false } = {}) {
   if (!url) return "";
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    const error = new Error(`Fetch failed (${res.status}) for ${url}`);
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      throw new Error(`Fetch failed (${res.status}) for ${url}`);
+    }
+    return await res.text();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     if (optional) {
-      console.warn(error.message);
+      console.warn(`Skipping optional CSV (${url}): ${message}`);
       return "";
     }
+    const error = new Error(`Fetch failed for ${url}: ${message}`);
+    error.cause = err;
     throw error;
   }
-  return await res.text();
 }
 
 async function loadData() {
