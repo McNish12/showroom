@@ -1,7 +1,17 @@
 /***** Data source URLs *****/
-const PRODUCTS_CSV_URL = window.PRODUCTS_CSV || window.SHEET_CSV || "";
-const VARIANTS_CSV_URL = window.VARIANTS_CSV || "";
-const MODIFIERS_CSV_URL = window.MODIFIERS_CSV || "";
+const PRODUCTS_CSV_URL =
+  (typeof PRODUCTS_CSV !== "undefined" && PRODUCTS_CSV) ||
+  window.PRODUCTS_CSV ||
+  window.SHEET_CSV ||
+  "";
+const VARIANTS_CSV_URL =
+  (typeof VARIANTS_CSV !== "undefined" && VARIANTS_CSV) ||
+  window.VARIANTS_CSV ||
+  "";
+const MODIFIERS_CSV_URL =
+  (typeof MODIFIERS_CSV !== "undefined" && MODIFIERS_CSV) ||
+  window.MODIFIERS_CSV ||
+  "";
 
 /***** CSV helpers *****/
 function smartSplit(line) {
