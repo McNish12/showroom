@@ -8,21 +8,35 @@
   <meta name="robots" content="noindex" />
 </head>
 <body>
-  <header class="container">
-    <h1>Honors Showroom</h1>
-    <div class="controls">
-      <input id="search" type="search" placeholder="Search name, vendor, SKU…" />
-      <select id="category"><option value="">All categories</option></select>
-      <select id="sort">
-        <option value="name-asc">Name A–Z</option>
-        <option value="name-desc">Name Z–A</option>
-        <option value="price-asc">Price ↑</option>
-        <option value="price-desc">Price ↓</option>
-      </select>
+  <div class="topbar">
+    <div class="wrap">
+      <span>Email: <a href="mailto:sales@honorsone.com">sales@honorsone.com</a></span>
+      <span>•</span>
+      <a href="tel:+12485825200">248.582.5200</a>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="#">
+        <img src="Assets/Honors%20Thick%20Logo.png" alt="Honors" />
+      </a>
+      <nav class="navlinks" id="nav"></nav>
+    </div>
+    <div class="wrap controls">
+      <input id="q" type="search" placeholder="Search products, tags, vendor…" />
+      <select id="cat"><option value="">All Categories</option></select>
+      <select id="imp"><option value="">All Imprint Methods</option></select>
+      <select id="tag"><option value="">All Tags</option></select>
     </div>
   </header>
 
-  <main id="grid" class="grid container" aria-live="polite"></main>
+  <main class="wrap content">
+    <div class="results-meta">
+      <p id="count">Loading…</p>
+    </div>
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </main>
 
   <template id="card-tpl">
     <article class="card">
