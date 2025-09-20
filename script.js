@@ -115,6 +115,22 @@ function splitList(value) {
     .filter(Boolean);
 }
 
+const normalizeValue = (value) => String(value || "").trim().toLowerCase();
+
+function uniqueList(list) {
+  return Array.from(
+    new Set(
+      (list || [])
+        .map((item) => String(item || "").trim())
+        .filter((item) => item.length)
+    )
+  );
+}
+
+function slug(value) {
+  return normalizeValue(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
 /***** Coercions *****/
 function toMoney(v) {
   if (!v) return null;
@@ -160,6 +176,14 @@ const PRODUCT_HINTS = {
   price: ["Price 1", "Price", "Default Price", "Base Price", "Retail Price"],
   imageUrl: ["Image", "Image URL", "Image Link", "Image Src", "Photo"],
   sku: ["SKU", "Product SKU", "Item SKU", "Code", "PLU"],
+  imprintMethods: [
+    "Imprint Methods",
+    "Imprint Method",
+    "Decoration Methods",
+    "Decoration Method",
+    "Imprint",
+    "Decoration",
+  ],
   tags: ["Tags", "Tag", "Keywords", "Collections"],
 };
 
@@ -218,17 +242,20 @@ function extractProducts(table) {
       const keySource = id || name;
       const key = makeKey(keySource);
       if (!key) return null;
+      const vendor = pick(row, PRODUCT_HINTS.vendor).trim();
+      const category = pick(row, PRODUCT_HINTS.category).trim();
       return {
         key,
         keySource,
         id,
         name,
         description: pick(row, PRODUCT_HINTS.description),
-        vendor: pick(row, PRODUCT_HINTS.vendor),
-        category: pick(row, PRODUCT_HINTS.category),
+        vendor,
+        category,
         price: toMoney(pick(row, PRODUCT_HINTS.price)),
         imageUrl: pick(row, PRODUCT_HINTS.imageUrl),
         sku: pick(row, PRODUCT_HINTS.sku),
+        imprintMethods: splitList(pick(row, PRODUCT_HINTS.imprintMethods)),
         tags: splitList(pick(row, PRODUCT_HINTS.tags)),
       };
     })
@@ -391,6 +418,19 @@ function buildPriceText(basePrice, variants) {
 
 /***** DOM *****/
 const grid = document.getElementById("grid");
+const searchInput = document.getElementById("q");
+const categorySelect = document.getElementById("cat");
+const imprintSelect = document.getElementById("imp");
+const tagSelect = document.getElementById("tag");
+const navEl = document.getElementById("nav");
+const countEl = document.getElementById("count");
+
+let catalog = [];
+let categoryEntries = [];
+let categoryLookup = new Map();
+let imprintEntries = new Map();
+let tagEntries = new Map();
+let filtersInitialized = false;
 
 function createSection(title, items, limit = 6) {
   if (!items.length) return null;
@@ -439,7 +479,9 @@ function render(products) {
   if (!products.length) {
     const div = document.createElement("div");
     div.className = "empty";
-    div.textContent = "No items.";
+    div.textContent = catalog.length
+      ? "No products match your filters."
+      : "No products available.";
     grid.appendChild(div);
     return;
   }
@@ -526,6 +568,244 @@ function render(products) {
   grid.appendChild(frag);
 }
 
+function updateCount(count) {
+  if (!countEl) return;
+  const total = catalog.length;
+  if (!total) {
+    countEl.textContent = "No products available.";
+    return;
+  }
+  const suffix = total === 1 ? "product" : "products";
+  if (count === total) {
+    countEl.textContent = `${count} ${suffix}`;
+  } else {
+    countEl.textContent = `${count} of ${total} ${suffix}`;
+  }
+}
+
+function populateCategorySelect() {
+  if (!categorySelect) return;
+  const current = categorySelect.value;
+  categorySelect.innerHTML = "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "All Categories";
+  categorySelect.appendChild(defaultOption);
+
+  categoryEntries.forEach(({ slug: slugValue, label }) => {
+    const option = document.createElement("option");
+    option.value = slugValue;
+    option.textContent = label;
+    categorySelect.appendChild(option);
+  });
+
+  if (current && categoryLookup.has(current)) {
+    categorySelect.value = current;
+  }
+}
+
+function populateFilterSelect(select, entries, emptyLabel) {
+  if (!select) return;
+  const current = select.value;
+  select.innerHTML = "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = emptyLabel;
+  select.appendChild(defaultOption);
+
+  const sorted = Array.from(entries.entries()).sort((a, b) =>
+    a[1].localeCompare(b[1], undefined, { sensitivity: "base" })
+  );
+
+  sorted.forEach(([key, label]) => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = label;
+    select.appendChild(option);
+  });
+
+  if (current && entries.has(current)) {
+    select.value = current;
+  }
+}
+
+function buildNavFromCategories(products) {
+  if (!navEl) return;
+  const seen = new Map();
+  products.forEach((product) => {
+    const label = (product.category || "").trim();
+    const slugValue = product.categorySlug;
+    if (!label || !slugValue) return;
+    if (!seen.has(slugValue)) {
+      seen.set(slugValue, label);
+    }
+  });
+
+  const sorted = Array.from(seen.entries()).sort((a, b) =>
+    a[1].localeCompare(b[1], undefined, { sensitivity: "base" })
+  );
+
+  categoryEntries = sorted.map(([slugValue, label]) => ({ slug: slugValue, label }));
+  categoryLookup = new Map(sorted);
+  categoryLookup.set("", "All Products");
+
+  navEl.innerHTML = "";
+  const frag = document.createDocumentFragment();
+
+  const allLink = document.createElement("a");
+  allLink.href = "#";
+  allLink.className = "nav-link";
+  allLink.dataset.slug = "";
+  allLink.textContent = "All Products";
+  frag.appendChild(allLink);
+
+  categoryEntries.forEach(({ slug: slugValue, label }) => {
+    const link = document.createElement("a");
+    link.href = `#/c/${slugValue}`;
+    link.className = "nav-link";
+    link.dataset.slug = slugValue;
+    link.textContent = label;
+    frag.appendChild(link);
+  });
+
+  navEl.appendChild(frag);
+}
+
+function updateNavActive(activeSlug) {
+  if (!navEl) return;
+  navEl.querySelectorAll("a").forEach((link) => {
+    const slugValue = link.dataset.slug || "";
+    if (slugValue === activeSlug) link.classList.add("active");
+    else link.classList.remove("active");
+  });
+}
+
+function collectFilterEntries(products, listKey, valueKey) {
+  const map = new Map();
+  products.forEach((product) => {
+    const list = product[listKey] || [];
+    const values = product[valueKey] || [];
+    list.forEach((label, idx) => {
+      const key = values[idx];
+      if (!key || !label) return;
+      if (!map.has(key)) {
+        map.set(key, label);
+      }
+    });
+  });
+  return map;
+}
+
+function getHashCategorySlug() {
+  const hash = window.location.hash || "";
+  const match = hash.match(/^#\/c\/([A-Za-z0-9-]+)/);
+  if (match && match[1]) {
+    const slugValue = match[1];
+    if (categoryLookup.has(slugValue)) return slugValue;
+  }
+  return "";
+}
+
+function setCategory(slugValue, { updateHash = true } = {}) {
+  let target = slugValue || "";
+  if (target && !categoryLookup.has(target)) {
+    target = "";
+  }
+  if (categorySelect) {
+    categorySelect.value = target;
+  }
+  updateNavActive(target);
+
+  if (updateHash) {
+    if (target) {
+      const desired = `#/c/${target}`;
+      if (window.location.hash !== desired) {
+        window.location.hash = `/c/${target}`;
+        return;
+      }
+    } else if (window.location.hash) {
+      if (typeof history !== "undefined" && history.replaceState) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      } else {
+        window.location.hash = "";
+      }
+    }
+  }
+
+  applyFilters();
+}
+
+function handleHashChange() {
+  const slugValue = getHashCategorySlug();
+  setCategory(slugValue, { updateHash: false });
+}
+
+function initializeFilters(products) {
+  buildNavFromCategories(products);
+  populateCategorySelect();
+
+  imprintEntries = collectFilterEntries(products, "imprintMethods", "imprintKeys");
+  tagEntries = collectFilterEntries(products, "tags", "tagKeys");
+  populateFilterSelect(imprintSelect, imprintEntries, "All Imprint Methods");
+  populateFilterSelect(tagSelect, tagEntries, "All Tags");
+
+  if (!filtersInitialized) {
+    filtersInitialized = true;
+    if (searchInput) {
+      searchInput.addEventListener("input", () => applyFilters());
+    }
+    if (categorySelect) {
+      categorySelect.addEventListener("change", (event) => {
+        setCategory(event.target.value);
+      });
+    }
+    if (imprintSelect) {
+      imprintSelect.addEventListener("change", () => applyFilters());
+    }
+    if (tagSelect) {
+      tagSelect.addEventListener("change", () => applyFilters());
+    }
+    if (navEl) {
+      navEl.addEventListener("click", (event) => {
+        const link = event.target.closest("a");
+        if (!link) return;
+        const slugValue = link.dataset.slug || "";
+        event.preventDefault();
+        setCategory(slugValue);
+      });
+    }
+    window.addEventListener("hashchange", handleHashChange);
+  }
+
+  handleHashChange();
+}
+
+function applyFilters() {
+  if (!Array.isArray(catalog) || !catalog.length) {
+    render([]);
+    updateCount(0);
+    return;
+  }
+
+  const query = searchInput ? normalizeValue(searchInput.value) : "";
+  const categorySlugValue = categorySelect ? categorySelect.value : "";
+  const imprintKey = imprintSelect ? imprintSelect.value : "";
+  const tagKey = tagSelect ? tagSelect.value : "";
+
+  const filtered = catalog.filter((product) => {
+    if (categorySlugValue && product.categorySlug !== categorySlugValue) return false;
+    if (imprintKey && !product.imprintKeys.includes(imprintKey)) return false;
+    if (tagKey && !product.tagKeys.includes(tagKey)) return false;
+    if (query && !product.searchText.includes(query)) return false;
+    return true;
+  });
+
+  updateCount(filtered.length);
+  render(filtered);
+}
+
 /***** Data load *****/
 async function fetchCsv(url, { optional = false } = {}) {
   if (!url) return "";
@@ -574,20 +854,63 @@ async function loadData() {
       enrichVariants(productVariants);
       enrichModifiers(productModifiers);
 
+      const tags = uniqueList(product.tags);
+      const imprintMethods = uniqueList(product.imprintMethods);
+      const tagKeys = tags.map((tag) => normalizeValue(tag));
+      const imprintKeys = imprintMethods.map((method) => normalizeValue(method));
+      const categorySlugValue = product.category ? slug(product.category) : "";
+
+      const searchParts = [
+        product.name,
+        product.vendor,
+        product.sku,
+        product.id,
+        product.description,
+        product.category,
+        ...tags,
+        ...imprintMethods,
+      ];
+
+      productVariants.forEach((variant) => {
+        searchParts.push(variant.displayLabel);
+        if (variant.sku) searchParts.push(variant.sku);
+        if (variant.name) searchParts.push(variant.name);
+      });
+
+      productModifiers.forEach((modifier) => {
+        searchParts.push(modifier.displayLabel);
+      });
+
+      const searchText = searchParts
+        .map((part) => normalizeValue(part))
+        .filter(Boolean)
+        .join(" ");
+
       return {
         ...product,
+        tags,
+        imprintMethods,
         priceText: buildPriceText(product.price, productVariants),
         variants: productVariants,
         modifiers: productModifiers,
         variantCount: productVariants.length,
         modifierCount: productModifiers.length,
+        categorySlug: categorySlugValue,
+        tagKeys,
+        imprintKeys,
+        searchText,
       };
     });
 
-    render(enriched);
+    catalog = enriched;
+    initializeFilters(catalog);
+    applyFilters();
   } catch (e) {
     console.error(e);
     grid.innerHTML = `<div class="empty">There was a problem loading the catalog.</div>`;
+    if (countEl) {
+      countEl.textContent = "Unable to load products.";
+    }
   }
 }
 
