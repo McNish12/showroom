@@ -74,4 +74,4 @@ src/
 - Rich product detail drawer featuring an image gallery, tags, imprint method badges, external preview link, and a variant pricing table.
 - Graceful fallbacks when data is missing (e.g., placeholder imagery or "Quote upon request" pricing).
 
-Feel free to tailor copy, contact details, or branding assets in `TopBar.jsx`, `Footer.jsx`, and `public/rocket-logo.svg` to match your organization.
+Feel free to tailor copy, contact details, or branding assets in `TopBar.jsx`, `Footer.jsx`, and `src/assets/rocket-logo.svg` to match your organization.
