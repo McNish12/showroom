@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import rocketLogo from '../assets/rocket-logo.svg'
 
 const SiteHeader = ({
   categories,
@@ -24,12 +25,7 @@ const SiteHeader = ({
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-4">
         <div className="flex flex-wrap items-center gap-6">
           <a className="flex items-center gap-3" href="#top" aria-label="Rocket Catalog home">
-            <img
-              src="/rocket-logo.svg"
-              alt="Rocket Catalog"
-              className="h-10 w-auto"
-              loading="lazy"
-            />
+            <img src={rocketLogo} alt="Rocket Catalog" className="h-10 w-auto" loading="lazy" />
             <span className="hidden text-lg font-heading font-semibold text-ink sm:inline">
               Rocket Catalog
             </span>
