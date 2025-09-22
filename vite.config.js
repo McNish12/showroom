@@ -3,10 +3,9 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
-  // Emit relative asset URLs in production so the bundle works when published
-  // from GitHub Pages' `docs/` directory without needing a custom server
-  // rewrite for the repository name.
-  base: mode === 'production' ? './' : '/',
+  // Use the GitHub Pages repository name as the production base path so
+  // absolute asset URLs resolve no matter how the catalog page is linked.
+  base: mode === 'production' ? '/showroom/' : '/',
   plugins: [react()],
   // Emit the production build to `docs/` so GitHub Pages can serve the compiled
   // assets directly from the repository without additional tooling.
