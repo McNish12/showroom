@@ -28,18 +28,6 @@ This project rebuilds the Rocket Catalog experience as a single-page React appli
    npm run build
    ```
 
-## Deploying to GitHub Pages
-
-GitHub Pages is configured to serve files from the repository’s `docs/` directory. Running `npm run build` now writes the
-optimized production bundle directly to that folder. To publish updates:
-
-1. Run `npm run build`.
-2. Commit the generated files under `docs/` together with your source changes.
-3. Push to the default branch—GitHub Pages will immediately serve the new bundle from https://mcnish12.github.io/showroom/.
-
-If you are using a different GitHub repository namespace, update the `base` option in `vite.config.js` so that static assets
-resolve correctly for your deployment path.
-
 ## Data Sources
 
 The catalog consumes the same read-only Google Sheets data as the legacy site:
@@ -53,28 +41,25 @@ The CSV contents are never modified—only fetched at runtime to populate the in
 
 ```
 src/
-  App.jsx                # Fetches catalog data and orchestrates the layout
-  RootErrorBoundary.jsx  # Top-level error boundary with a friendly fallback state
   components/
-    ImageModal.jsx       # Accessible lightbox for enlarged product imagery
-    ProductCard.jsx      # Clickable catalog tile with imagery and pricing callout
-    ProductDrawer.jsx    # Slide-in drawer with gallery, links, and variant pricing table
-    ProductGrid.jsx      # Responsive grid that renders ProductCard instances
-  hooks/
-    useFocusTrap.js      # Reusable focus management for modals and drawers
+    Footer.jsx           # Footer with contact details and branding
+    ProductCard.jsx      # Catalog card displaying thumbnail, price, and tags
+    ProductDetail.jsx    # Slide-in drawer with gallery + variant pricing table
+    ProductGrid.jsx      # Category headings and responsive card grid
+    SiteHeader.jsx       # Sticky header with navigation + filter controls
+    TopBar.jsx           # Contact bar shown at the top of the page
   utils/
-    catalog.js           # CSV fetching, normalization, and enrichment helpers
-  assets/
-    rocket-logo.svg      # Source artwork for the Honors, Inc. branding
-  index.css              # Tailwind directives and global design tokens
-  main.jsx               # React entry point with StrictMode and error boundary wiring
+    catalog.js           # CSV parsing, normalization, and enrichment helpers
+  App.jsx                # Fetches data, manages filters, orchestrates layout
+  index.css              # Tailwind directives and base styles
+  main.jsx               # React entry point
 ```
 
 ## Feature Highlights
 
-- Branded hero header that keeps the catalog focus on Honors, Inc. awards and recognition pieces.
-- Responsive grid of product cards with graceful image fallbacks and clear pricing callouts.
-- Slide-in product drawer featuring an image gallery, external resource links, and a structured variant pricing table.
-- Accessible modal experiences (drawer and lightbox) powered by a shared focus-trapping hook.
+- Sticky header with category navigation, search, and dropdown filters for category, imprint method, and tags.
+- Responsive grid that groups products by category and reports how many items match the active filters.
+- Rich product detail drawer featuring an image gallery, tags, imprint method badges, external preview link, and a variant pricing table.
+- Graceful fallbacks when data is missing (e.g., placeholder imagery or "Quote upon request" pricing).
 
-Feel free to tailor the hero copy in `App.jsx` or swap the artwork in `src/assets/rocket-logo.svg` to match your organization.
+Feel free to tailor copy, contact details, or branding assets in `TopBar.jsx`, `Footer.jsx`, and `public/rocket-logo.svg` to match your organization.
