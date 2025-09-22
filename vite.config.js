@@ -8,4 +8,10 @@ export default defineConfig(({ mode }) => ({
   // development for convenience.
   base: mode === 'production' ? '/showroom/' : '/',
   plugins: [react()],
+  // Emit the production build to `docs/` so GitHub Pages can serve the compiled
+  // assets directly from the repository without additional tooling.
+  build: {
+    outDir: 'docs',
+    emptyOutDir: true,
+  },
 }))
