@@ -28,6 +28,18 @@ This project rebuilds the Rocket Catalog experience as a single-page React appli
    npm run build
    ```
 
+## Deploying to GitHub Pages
+
+GitHub Pages is configured to serve files from the repository’s `docs/` directory. Running `npm run build` now writes the
+optimized production bundle directly to that folder. To publish updates:
+
+1. Run `npm run build`.
+2. Commit the generated files under `docs/` together with your source changes.
+3. Push to the default branch—GitHub Pages will immediately serve the new bundle from https://mcnish12.github.io/showroom/.
+
+If you are using a different GitHub repository namespace, update the `base` option in `vite.config.js` so that static assets
+resolve correctly for your deployment path.
+
 ## Data Sources
 
 The catalog consumes the same read-only Google Sheets data as the legacy site:
