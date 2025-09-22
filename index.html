@@ -1,65 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Honors Showroom</title>
-  <link rel="stylesheet" href="styles.css" />
-  <meta name="robots" content="noindex" />
-</head>
-<body>
-  <div class="topbar">
-    <div class="wrap">
-      <span>Email: <a href="mailto:sales@honorsone.com">sales@honorsone.com</a></span>
-      <span>•</span>
-      <a href="tel:+12485825200">248.582.5200</a>
-    </div>
-  </div>
-
-  <header class="site-header">
-    <div class="wrap nav">
-      <a class="brand" href="#">
-        <img src="Assets/Honors%20Thick%20Logo.png" alt="Honors" />
-      </a>
-      <nav class="navlinks" id="nav"></nav>
-    </div>
-    <div class="wrap controls">
-      <input id="q" type="search" placeholder="Search products, tags, vendor…" />
-      <select id="cat"><option value="">All Categories</option></select>
-      <select id="imp"><option value="">All Imprint Methods</option></select>
-      <select id="tag"><option value="">All Tags</option></select>
-    </div>
-  </header>
-
-  <main class="wrap content">
-    <div class="results-meta">
-      <p id="count">Loading…</p>
-    </div>
-    <section id="grid" class="grid" aria-live="polite"></section>
-  </main>
-
-  <template id="card-tpl">
-    <article class="card">
-      <img class="card-img" alt="" />
-      <div class="card-body">
-        <h2 class="card-title"></h2>
-        <p class="card-sub"></p>
-        <p class="card-desc"></p>
-        <div class="card-meta"></div>
-        <div class="card-actions"></div>
-      </div>
-    </article>
-  </template>
-
-  <script>
-    /* Google Sheet → Showroom CSV endpoints (read-only) */
-    window.PRODUCTS_CSV =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=653601520&single=true&output=csv";
-    window.VARIANTS_CSV =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=140795318&single=true&output=csv";
-    window.MODIFIERS_CSV =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=1997038370&single=true&output=csv";
-  </script>
-  <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <title>Rocket Catalog</title>
+    <meta
+      name="description"
+      content="Browse the Rocket Catalog for apparel and merchandise with rich product details, pricing, and imagery."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
