@@ -1,42 +1,26 @@
 import Papa from 'papaparse'
 
-const PRODUCT_FIELD_HINTS = {
-  id: ['Product ID', 'ID', 'Item ID', 'Handle', 'Slug', 'Key'],
-  name: ['Name', 'Product Name', 'Title'],
-  priceRange: ['Price Range', 'Price', 'Base Price', 'MSRP'],
-  description: ['Description', 'Product Description', 'Details'],
-  preview3DLink: ['3D Preview', 'Preview Link', 'Preview URL'],
-  templateDownload: ['Template Download', 'Template', 'Spec Sheet'],
-  thumbnail: ['Thumbnail Image', 'Thumbnail', 'Primary Image', 'Main Image'],
-}
-
-const VARIANT_FIELD_HINTS = {
-  productKey: ['Product Handle', 'Product Key', 'Product ID', 'Handle', 'Product Name'],
-  option: ['Variant Name', 'Variant', 'Option', 'Option Name', 'Name'],
-  price: ['Price', 'Variant Price', 'Unit Price'],
-  id: ['Variant ID', 'SKU', 'Code'],
-}
+export const PRODUCTS_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=653601520&single=true&output=csv'
+export const VARIANTS_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=140795318&single=true&output=csv'
 
 const normalizeHeader = (value) =>
   String(value || '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '')
 
-const makeKey = (value) =>
-  String(value || '')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
+const makeKey = (value) => String(value || '').trim().toLowerCase()
 
 const isNonEmpty = (value) => String(value ?? '').trim().length > 0
 
 const splitList = (value) =>
-  String(value ?? '')
+  String(value || '')
     .split(/[\n;,|]/)
     .map((item) => item.trim())
     .filter(Boolean)
 
-const parseMoney = (value) => {
+const toMoney = (value) => {
   if (!isNonEmpty(value)) return null
   const numeric = Number(String(value).replace(/[^0-9.-]/g, ''))
   return Number.isFinite(numeric) ? numeric : null
@@ -48,276 +32,281 @@ const moneyFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
 })
 
-const formatMoney = (value) =>
-  Number.isFinite(value) ? moneyFormatter.format(value) : ''
+const formatMoney = (value) => (Number.isFinite(value) ? moneyFormatter.format(value) : '')
 
-const sanitizeUrl = (value) => {
-  if (!isNonEmpty(value)) return null
-  const trimmed = String(value).trim()
-  if (/^https?:\/\//i.test(trimmed)) return trimmed
-  if (trimmed.startsWith('//')) return `https:${trimmed}`
-  if (trimmed.startsWith('/')) return trimmed
-  if (trimmed.startsWith('./') || trimmed.startsWith('../')) return trimmed
-  return null
+const PRODUCT_HINTS = {
+  id: ['Product ID', 'ProductId', 'Item ID', 'ItemId', 'Internal ID', 'Guid', 'Handle'],
+  name: ['Name', 'Product Name', 'Item Name', 'Title'],
+  description: ['Description', 'Product Description', 'Long Description', 'Details'],
+  vendor: ['Vendor', 'Brand', 'Manufacturer', 'Supplier'],
+  category: ['Category', 'Department', 'Collection'],
+  price: ['Price 1', 'Price', 'Default Price', 'Base Price', 'Retail Price'],
+  tags: ['Tags', 'Tag', 'Keywords', 'Collections'],
+  imprint: ['Imprint Methods', 'Imprint Method', 'Decoration', 'Decoration Methods'],
+  preview: ['Preview', 'Preview URL', '3D Preview', 'Preview Link'],
+  thumbnail: ['Thumbnail', 'Thumb', 'Primary Image'],
+  image: ['Image', 'Image URL', 'Hero Image', 'Main Image'],
+  status: ['Status', 'Approved', 'Active', 'Enabled'],
 }
 
-const buildHeaderIndex = (row) => {
-  const index = new Map()
-  Object.keys(row || {}).forEach((header) => {
-    const normalized = normalizeHeader(header)
-    if (!normalized) return
-    if (!index.has(normalized)) {
-      index.set(normalized, [])
-    }
-    index.get(normalized).push(header)
-  })
-  return index
+const VARIANT_HINTS = {
+  id: ['Variant ID', 'VariantId', 'Variation ID', 'Variant Guid'],
+  productId: ['Product ID', 'ProductId', 'Item ID', 'ItemId', 'Product Guid'],
+  productName: ['Product Name', 'Item Name', 'Menu Item'],
+  name: ['Variant Name', 'Variation Name', 'Name', 'Option'],
+  sku: ['Variant SKU', 'SKU', 'Item SKU', 'Code'],
+  price: ['Price', 'Variant Price', 'Price 1', 'Retail Price', 'Default Price'],
+  option1: ['Option 1', 'Option1', 'Attribute 1', 'Attribute1', 'Choice 1'],
+  option2: ['Option 2', 'Option2', 'Attribute 2', 'Attribute2', 'Choice 2'],
+  option3: ['Option 3', 'Option3', 'Attribute 3', 'Attribute3', 'Choice 3'],
 }
 
-const pickValue = (row, hints, headerIndex) => {
-  if (!row) return ''
-  for (const hint of hints) {
-    const key = normalizeHeader(hint)
-    if (key && headerIndex.has(key)) {
-      const headers = headerIndex.get(key)
-      for (const header of headers) {
-        const value = row[header]
-        if (isNonEmpty(value)) return String(value).trim()
-      }
-    }
-  }
-  for (const hint of hints) {
-    const key = normalizeHeader(hint)
-    if (!key) continue
-    for (const [normalized, headers] of headerIndex.entries()) {
-      if (!normalized.includes(key)) continue
-      for (const header of headers) {
-        const value = row[header]
-        if (isNonEmpty(value)) return String(value).trim()
-      }
-    }
-  }
-  return ''
-}
-
-const gatherGallery = (row) => {
-  const images = []
-  Object.entries(row || {}).forEach(([header, value]) => {
-    if (!isNonEmpty(value)) return
-    const normalized = normalizeHeader(header)
-    if (normalized.includes('gallery') || normalized.includes('image') || normalized.includes('photo')) {
-      splitList(value).forEach((item) => {
-        const url = sanitizeUrl(item)
-        if (url) images.push(url)
-      })
-    }
-  })
-  const unique = Array.from(new Set(images))
-  return unique
-}
-
-const parseCsvRecords = (csvText) => {
+const parseTable = (csvText) => {
   if (!isNonEmpty(csvText)) return []
   const parsed = Papa.parse(csvText, {
     header: true,
     skipEmptyLines: true,
   })
-  return parsed.data.map((row) => row)
+
+  const headers = parsed.meta.fields || []
+
+  return parsed.data.map((row) => {
+    const normalized = {}
+    headers.forEach((header) => {
+      const key = normalizeHeader(header)
+      if (!key) return
+      normalized[key] = row[header] ?? ''
+    })
+    return { original: row, normalized }
+  })
 }
 
-const normalizeProducts = (csvText) => {
-  const rows = parseCsvRecords(csvText)
-  return rows
-    .map((row, index) => {
-      const headerIndex = buildHeaderIndex(row)
-      const name = pickValue(row, PRODUCT_FIELD_HINTS.name, headerIndex)
-      if (!isNonEmpty(name)) return null
+const pick = (row, hints) => {
+  if (!row) return ''
+  for (const hint of hints) {
+    const key = normalizeHeader(hint)
+    if (key && key in row.normalized) {
+      const value = row.normalized[key]
+      if (isNonEmpty(value)) return String(value).trim()
+    }
+  }
+  for (const hint of hints) {
+    const key = normalizeHeader(hint)
+    if (!key) continue
+    const match = Object.entries(row.normalized).find(
+      ([candidate, value]) => candidate.includes(key) && isNonEmpty(value),
+    )
+    if (match) return String(match[1]).trim()
+  }
+  for (const hint of hints) {
+    const key = normalizeHeader(hint)
+    if (!key) continue
+    const match = Object.entries(row.original).find(
+      ([header, value]) => normalizeHeader(header).includes(key) && isNonEmpty(value),
+    )
+    if (match) return String(match[1]).trim()
+  }
+  return ''
+}
 
-      const idSource =
-        pickValue(row, PRODUCT_FIELD_HINTS.id, headerIndex) ||
-        pickValue(row, PRODUCT_FIELD_HINTS.name, headerIndex) ||
-        `product-${index}`
+const gatherValues = (row, matcher) => {
+  const values = []
+  Object.entries(row.original).forEach(([header, value]) => {
+    if (!isNonEmpty(value)) return
+    const normalized = normalizeHeader(header)
+    if (matcher(normalized)) {
+      splitList(value).forEach((item) => values.push(item))
+    }
+  })
+  return Array.from(new Set(values.filter(Boolean)))
+}
 
-      const key = makeKey(idSource)
-      const description = pickValue(row, PRODUCT_FIELD_HINTS.description, headerIndex)
-      const priceCandidate = pickValue(row, PRODUCT_FIELD_HINTS.priceRange, headerIndex)
-      const basePrice = parseMoney(priceCandidate)
-      const priceRange = priceCandidate
-        ? basePrice !== null && /^\d+(\.\d+)?$/.test(priceCandidate.trim())
-          ? formatMoney(basePrice)
-          : priceCandidate.trim()
-        : ''
-      const thumbnailUrl = sanitizeUrl(pickValue(row, PRODUCT_FIELD_HINTS.thumbnail, headerIndex))
-      const galleryUrls = gatherGallery(row)
-      if (thumbnailUrl) {
-        const idx = galleryUrls.indexOf(thumbnailUrl)
-        if (idx !== -1) {
-          galleryUrls.splice(idx, 1)
-        }
-      }
+const deriveGallery = (row) =>
+  gatherValues(row, (key) =>
+    key.includes('image') || key.includes('photo') || key.includes('gallery'),
+  )
 
-      const preview3DLink = sanitizeUrl(pickValue(row, PRODUCT_FIELD_HINTS.preview3DLink, headerIndex))
-      const templateDownload = sanitizeUrl(pickValue(row, PRODUCT_FIELD_HINTS.templateDownload, headerIndex))
+const deriveImprintMethods = (row) => {
+  const explicit = pick(row, PRODUCT_HINTS.imprint)
+  const values = []
+  if (explicit) values.push(...splitList(explicit))
+  values.push(
+    ...gatherValues(row, (key) =>
+      key.includes('imprint') || key.includes('decoration') || key.includes('printmethod'),
+    ),
+  )
+  return Array.from(new Set(values.filter(Boolean)))
+}
 
-      const numericBasePrice = basePrice !== null ? basePrice : null
+const deriveTags = (row) => {
+  const explicit = pick(row, PRODUCT_HINTS.tags)
+  const values = []
+  if (explicit) values.push(...splitList(explicit))
+  values.push(...gatherValues(row, (key) => key.includes('tag') || key.includes('keyword')))
+  return Array.from(new Set(values.filter(Boolean)))
+}
+
+const isApproved = (row) => {
+  const status = pick(row, PRODUCT_HINTS.status)
+  if (!status) return true
+  const value = status.trim().toLowerCase()
+  if (!value) return true
+  return ['approved', 'active', 'yes', 'true', '1', 'show', 'enabled'].some((token) =>
+    value.includes(token),
+  )
+}
+
+export const extractProducts = (csvText) => {
+  const table = parseTable(csvText)
+  return table
+    .map((row) => {
+      if (!isApproved(row)) return null
+      const name = pick(row, PRODUCT_HINTS.name)
+      if (!name) return null
+      const id = pick(row, PRODUCT_HINTS.id)
+      const keySource = id || name
+      const key = makeKey(keySource)
+      if (!key) return null
+
+      const gallery = deriveGallery(row)
+      const thumbnail =
+        pick(row, PRODUCT_HINTS.thumbnail) || pick(row, PRODUCT_HINTS.image) || gallery[0] || ''
 
       return {
-        id: key || `product-${index}`,
-        key: key || `product-${index}`,
-        name: name.trim(),
-        priceRange: priceRange ? priceRange : null,
-        description: isNonEmpty(description) ? description : null,
-        preview3DLink,
-        templateDownload,
-        thumbnailUrl: thumbnailUrl || null,
-        galleryUrls,
+        key,
+        id,
+        name,
+        category: pick(row, PRODUCT_HINTS.category),
+        vendor: pick(row, PRODUCT_HINTS.vendor),
+        description: pick(row, PRODUCT_HINTS.description),
+        basePrice: toMoney(pick(row, PRODUCT_HINTS.price)),
+        previewUrl: pick(row, PRODUCT_HINTS.preview),
+        imprintMethods: deriveImprintMethods(row),
+        tags: deriveTags(row),
+        gallery,
+        thumbnailUrl: thumbnail,
+        searchTokens: '',
         variants: [],
-        priceNumbers: numericBasePrice !== null ? [numericBasePrice] : [],
       }
     })
     .filter(Boolean)
 }
 
-const normalizeVariants = (csvText) => {
-  const rows = parseCsvRecords(csvText)
+export const extractVariants = (csvText) => {
+  const table = parseTable(csvText)
+  return table
+    .map((row) => {
+      const productId = pick(row, VARIANT_HINTS.productId)
+      const productName = pick(row, VARIANT_HINTS.productName)
+      const productKeySource = productId || productName
+      const productKey = makeKey(productKeySource)
+
+      const name = pick(row, VARIANT_HINTS.name)
+      const options = [
+        pick(row, VARIANT_HINTS.option1),
+        pick(row, VARIANT_HINTS.option2),
+        pick(row, VARIANT_HINTS.option3),
+      ].filter(Boolean)
+
+      const sku = pick(row, VARIANT_HINTS.sku)
+      const price = toMoney(pick(row, VARIANT_HINTS.price))
+
+      if (!productKey && !name && !options.length && !sku) return null
+
+      return {
+        id: pick(row, VARIANT_HINTS.id),
+        name,
+        sku,
+        productKey,
+        options,
+        price,
+      }
+    })
+    .filter(Boolean)
+}
+
+export const mergeCatalog = (products, variants) => {
   const map = new Map()
+  products.forEach((product) => {
+    map.set(product.key, product)
+  })
 
-  rows.forEach((row) => {
-    const headerIndex = buildHeaderIndex(row)
-    const productKeySource = pickValue(row, VARIANT_FIELD_HINTS.productKey, headerIndex)
-    if (!isNonEmpty(productKeySource)) return
-    const productKey = makeKey(productKeySource)
-    if (!productKey) return
-
-    const option = pickValue(row, VARIANT_FIELD_HINTS.option, headerIndex) || 'Variant'
-    const priceRaw = pickValue(row, VARIANT_FIELD_HINTS.price, headerIndex)
-    const priceValue = parseMoney(priceRaw)
-    const priceLabel = priceValue !== null ? formatMoney(priceValue) : priceRaw.trim()
-
-    const variantId = pickValue(row, VARIANT_FIELD_HINTS.id, headerIndex)
-
-    const excludedHeaders = new Set()
-    Object.values(VARIANT_FIELD_HINTS).forEach((hints) => {
-      hints.forEach((hint) => excludedHeaders.add(normalizeHeader(hint)))
-    })
-
-    const columns = {}
-    Object.entries(row || {}).forEach(([header, value]) => {
-      if (!isNonEmpty(value)) return
-      const normalized = normalizeHeader(header)
-      if (!header.trim()) return
-      if (excludedHeaders.has(normalized)) return
-      columns[header.trim()] = String(value).trim()
-    })
-
-    if (!map.has(productKey)) {
-      map.set(productKey, [])
+  variants.forEach((variant) => {
+    const product = map.get(variant.productKey)
+    if (!product) return
+    const descriptor = []
+    if (variant.name) descriptor.push(variant.name)
+    if (variant.options.length) {
+      const optionLabel = variant.options.join(' / ')
+      if (!descriptor.includes(optionLabel)) descriptor.push(optionLabel)
     }
+    if (!descriptor.length && variant.sku) descriptor.push(`SKU ${variant.sku}`)
+    if (!descriptor.length && variant.id) descriptor.push(variant.id)
 
-    map.get(productKey).push({
-      id: isNonEmpty(variantId) ? variantId : null,
-      option: option.trim(),
-      price: isNonEmpty(priceLabel) ? priceLabel : null,
-      priceValue: priceValue !== null ? priceValue : null,
-      columns,
+    const priceDisplay = formatMoney(variant.price)
+
+    product.variants.push({
+      ...variant,
+      displayName: descriptor.filter(Boolean).join(' — ') || 'Variant',
+      priceDisplay,
     })
   })
 
-  map.forEach((variants) => {
-    variants.sort((a, b) => a.option.localeCompare(b.option, undefined, { numeric: true }))
-  })
-
-  return map
-}
-
-const mergeCatalog = (products, variantsMap) => {
-  const merged = products.map((product) => {
-    const variants = variantsMap.get(product.key) || []
-    const priceNumbers = [...product.priceNumbers]
-
-    variants.forEach((variant) => {
-      if (Number.isFinite(variant.priceValue)) {
-        priceNumbers.push(variant.priceValue)
-      }
+  products.forEach((product) => {
+    const pricePoints = []
+    if (Number.isFinite(product.basePrice)) pricePoints.push(product.basePrice)
+    product.variants.forEach((variant) => {
+      if (Number.isFinite(variant.price)) pricePoints.push(variant.price)
     })
 
-    let priceRange = product.priceRange
-    if (!priceRange && priceNumbers.length) {
-      const min = Math.min(...priceNumbers)
-      const max = Math.max(...priceNumbers)
-      priceRange = min === max ? formatMoney(min) : `${formatMoney(min)} – ${formatMoney(max)}`
+    if (pricePoints.length) {
+      const min = Math.min(...pricePoints)
+      const max = Math.max(...pricePoints)
+      product.priceDisplay =
+        min === max ? formatMoney(min) : `${formatMoney(min)} – ${formatMoney(max)}`
+    } else {
+      product.priceDisplay = ''
     }
 
-    return {
-      id: product.id,
-      name: product.name,
-      priceRange: priceRange || null,
-      description: product.description,
-      preview3DLink: product.preview3DLink,
-      templateDownload: product.templateDownload,
-      thumbnailUrl: product.thumbnailUrl,
-      galleryUrls: product.galleryUrls,
-      variants,
-    }
+    const tokens = [
+      product.name,
+      product.category,
+      product.vendor,
+      product.description,
+      product.tags.join(' '),
+      product.imprintMethods.join(' '),
+      product.variants.map((variant) => `${variant.displayName} ${variant.sku || ''}`).join(' '),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    product.searchTokens = tokens
   })
 
-  merged.sort((a, b) => a.name.localeCompare(b.name))
-  return merged
+  return products
 }
 
-const fetchFromSources = async (sources, label) => {
-  let lastError = null
-  for (const source of sources) {
-    if (!source) continue
-    try {
-      const response = await fetch(source, { cache: 'no-store' })
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`)
-      }
-      const text = await response.text()
-      if (!isNonEmpty(text)) {
-        throw new Error('Response was empty')
-      }
-      return text
-    } catch (error) {
-      console.error(`Failed to load ${label} from ${source}`, error)
-      lastError = error
-    }
-  }
-  if (lastError) throw lastError
-  throw new Error(`No sources available for ${label}`)
+export const buildCollections = (products) => {
+  const categorySet = new Set()
+  const imprintSet = new Set()
+  const tagSet = new Set()
+
+  products.forEach((product) => {
+    if (product.category) categorySet.add(product.category)
+    product.imprintMethods.forEach((value) => imprintSet.add(value))
+    product.tags.forEach((value) => tagSet.add(value))
+  })
+
+  const categories = Array.from(categorySet).sort((a, b) => {
+    const special = 'Fast Turn Category'
+    if (a === special) return -1
+    if (b === special) return 1
+    return a.localeCompare(b)
+  })
+
+  const imprints = Array.from(imprintSet).sort((a, b) => a.localeCompare(b))
+  const tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b))
+
+  return { categories, imprints, tags }
 }
-
-export const loadCatalog = async () => {
-  const base = import.meta.env.BASE_URL || '/'
-  const productSources = []
-  if (import.meta.env.VITE_PRODUCTS_CSV_URL) {
-    productSources.push(import.meta.env.VITE_PRODUCTS_CSV_URL)
-  }
-  productSources.push(`${base}data/products.csv`)
-
-  const variantSources = []
-  if (import.meta.env.VITE_VARIANTS_CSV_URL) {
-    variantSources.push(import.meta.env.VITE_VARIANTS_CSV_URL)
-  }
-  variantSources.push(`${base}data/variants.csv`)
-
-  const productsCsv = await fetchFromSources(productSources, 'product catalog')
-  let variantsCsv = ''
-  try {
-    variantsCsv = await fetchFromSources(variantSources, 'variant catalog')
-  } catch (error) {
-    console.warn('Variant data unavailable, continuing without variants.', error)
-  }
-
-  const products = normalizeProducts(productsCsv)
-  const variants = normalizeVariants(variantsCsv)
-  const merged = mergeCatalog(products, variants)
-
-  if (!merged.length) {
-    throw new Error('No products were found in the catalog data.')
-  }
-
-  return merged
-}
-

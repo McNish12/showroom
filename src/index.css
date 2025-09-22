@@ -4,11 +4,11 @@
 
 @layer base {
   html {
-    @apply bg-slate-100 font-sans scroll-smooth;
+    @apply font-sans scroll-smooth bg-slate-50;
   }
 
   body {
-    @apply min-h-screen text-charcoal antialiased;
+    @apply text-charcoal antialiased;
   }
 
   h1,
@@ -24,5 +24,9 @@
 @layer components {
   .badge {
     @apply inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600;
+  }
+
+  .muted {
+    @apply text-slate-500;
   }
 }
