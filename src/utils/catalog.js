@@ -1,9 +1,11 @@
 import Papa from 'papaparse'
 
 export const PRODUCTS_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=653601520&single=true&output=csv'
+  'https://storage.googleapis.com/rocket-catalog-data/products.csv'
 export const VARIANTS_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=140795318&single=true&output=csv'
+  'https://storage.googleapis.com/rocket-catalog-data/variants.csv'
+export const PRODUCTS_LOCAL_CSV_URL = '/data/products.csv'
+export const VARIANTS_LOCAL_CSV_URL = '/data/variants.csv'
 
 const normalizeHeader = (value) =>
   String(value || '')

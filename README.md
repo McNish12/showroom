@@ -30,12 +30,12 @@ This project rebuilds the Rocket Catalog experience as a single-page React appli
 
 ## Data Sources
 
-The catalog consumes the same read-only Google Sheets data as the legacy site:
+The application now targets static CSV exports that are publicly readable without requiring a Google login:
 
-- Products: <https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=653601520&single=true&output=csv>
-- Variants: <https://docs.google.com/spreadsheets/d/e/2PACX-1vRU7hseo3Sa3Y5oTSb5fIjItVIC8JKW0lJdRFK4bCpxQJHfz9nTQjSXrh2Bhkx5J5gG69PO4IRUYIg0/pub?gid=140795318&single=true&output=csv>
+- Products: <https://storage.googleapis.com/rocket-catalog-data/products.csv>
+- Variants: <https://storage.googleapis.com/rocket-catalog-data/variants.csv>
 
-The CSV contents are never modified—only fetched at runtime to populate the interface. Products are filtered to show only approved items, and variants are grouped with their parent product to power pricing ranges and the detail table.
+For offline or firewalled development environments, matching snapshots are checked into the repository under `public/data/`. When the remote fetch returns a non-OK status, the app automatically falls back to these local copies so the catalog continues to function. The CSV contents are never modified—only fetched at runtime to populate the interface. Products are filtered to show only approved items, and variants are grouped with their parent product to power pricing ranges and the detail table.
 
 ## Application Structure
 

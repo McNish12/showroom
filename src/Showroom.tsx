@@ -6,20 +6,53 @@ import ProductDetail from './components/ProductDetail'
 import Footer from './components/Footer'
 import {
   PRODUCTS_CSV_URL,
+  PRODUCTS_LOCAL_CSV_URL,
   VARIANTS_CSV_URL,
+  VARIANTS_LOCAL_CSV_URL,
   extractProducts,
   extractVariants,
   mergeCatalog,
   buildCollections,
 } from './utils/catalog'
 
-const fetchCsv = async (url: string) => {
-  if (!url) return ''
-  const response = await fetch(url, { cache: 'no-store' })
-  if (!response.ok) {
-    throw new Error(`Failed to load data (${response.status})`)
+const fetchCsv = async (primaryUrl: string, fallbackUrl?: string) => {
+  const attempt = async (target: string) => {
+    const response = await fetch(target, { cache: 'no-store' })
+    if (!response.ok) {
+      throw new Error(`Failed to load ${target} (${response.status})`)
+    }
+    return response.text()
   }
-  return response.text()
+
+  let lastError: unknown = null
+
+  if (primaryUrl) {
+    try {
+      return await attempt(primaryUrl)
+    } catch (error) {
+      lastError = error
+      if (!fallbackUrl) throw error
+      console.warn(`Primary catalog source unavailable (${primaryUrl}); trying fallback.`, error)
+    }
+  }
+
+  if (fallbackUrl) {
+    try {
+      return await attempt(fallbackUrl)
+    } catch (error) {
+      lastError = error
+      console.error(`Fallback catalog source unavailable (${fallbackUrl}).`, error)
+    }
+  }
+
+  if (lastError instanceof Error) {
+    throw lastError
+  }
+  if (lastError) {
+    throw new Error(String(lastError))
+  }
+
+  return ''
 }
 
 const normalizeCategory = (value: unknown) => {
@@ -83,8 +116,8 @@ const Showroom = () => {
       setError('')
       try {
         const [productsCsv, variantsCsv] = await Promise.all([
-          fetchCsv(PRODUCTS_CSV_URL),
-          fetchCsv(VARIANTS_CSV_URL).catch((err) => {
+          fetchCsv(PRODUCTS_CSV_URL, PRODUCTS_LOCAL_CSV_URL),
+          fetchCsv(VARIANTS_CSV_URL, VARIANTS_LOCAL_CSV_URL).catch((err) => {
             console.warn('Variants CSV unavailable', err)
             return ''
           }),

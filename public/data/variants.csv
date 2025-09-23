@@ -1,0 +1,7 @@
+Variant ID,Product ID,Product Name,Variant Name,SKU,Price,Option 1,Option 2
+var-aurora-sm,prod-aurora,Aurora Hoodie,Small,HOOD-SM,45.00,Small,Charcoal
+var-aurora-md,prod-aurora,Aurora Hoodie,Medium,HOOD-MD,45.00,Medium,Charcoal
+var-aurora-lg,prod-aurora,Aurora Hoodie,Large,HOOD-LG,45.00,Large,Charcoal
+var-lumen-20oz,prod-lumen,Lumen Bottle,20 oz,LUMEN-20,28.50,20 oz,Matte Black
+var-lumen-32oz,prod-lumen,Lumen Bottle,32 oz,LUMEN-32,32.00,32 oz,Midnight Blue
+var-stratus-natural,prod-stratus,Stratus Tote,Natural,STRATUS-NT,12.75,One Size,Natural

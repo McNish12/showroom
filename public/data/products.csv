@@ -1,0 +1,4 @@
+Product ID,Name,Description,Vendor,Category,Price,Tags,Imprint Methods,Preview,Thumbnail,Image,Status
+prod-aurora,Aurora Hoodie,Soft fleece hoodie with brushed interior and modern fit.,Orion Textiles,Apparel,45.00,"Hoodie;Winter","Embroidery;Screen Print",https://example.com/aurora/preview,https://example.com/aurora/thumb.jpg,https://example.com/aurora/hero.jpg,Approved
+prod-lumen,Lumen Bottle,Vacuum insulated stainless steel bottle that keeps drinks cold for 24 hours.,Stellar Hydration,Drinkware,28.50,"Bottle;Hydration","Laser Engrave",https://example.com/lumen/preview,https://example.com/lumen/thumb.jpg,https://example.com/lumen/hero.jpg,Active
+prod-stratus,Stratus Tote,Recycled cotton tote with reinforced handles for daily errands.,Atmos Apparel,"Fast Turn Category",12.75,"Tote;Eco","Screen Print;Heat Transfer",https://example.com/stratus/preview,https://example.com/stratus/thumb.jpg,https://example.com/stratus/hero.jpg,Yes
